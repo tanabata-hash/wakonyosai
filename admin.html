@@ -172,6 +172,88 @@ body {
   text-align: left;
 }
 
+/* PIN変更モーダル */
+#pinModalOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.pin-change-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 14px;
+  padding: 32px 28px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+.pin-form-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+.pin-form-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.pin-form-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: #0B101B;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: #FFF;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.pin-form-input:focus {
+  border-color: var(--accent-gold);
+  outline: none;
+}
+.pin-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.btn-save-pin {
+  flex: 1;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dark) 100%);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-cancel-pin {
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-reset-pin {
+  width: 100%;
+  margin-top: 14px;
+  padding: 8px;
+  background: none;
+  border: none;
+  color: #94A3B8;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.btn-reset-pin:hover { color: #F87171; }
+
 /* ヘッダー */
 .admin-header {
   border-bottom: 1px solid var(--border-subtle);
@@ -809,6 +891,43 @@ body {
   </div>
 </div>
 
+<!-- PIN変更モーダル -->
+<div id="pinModalOverlay">
+  <div class="pin-change-card">
+    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-gold-light); margin-bottom: 6px; text-align: center;">
+      🔑 PINコード変更
+    </div>
+    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; text-align: center;">
+      ダッシュボード入室用の新しい暗証番号を設定します
+    </div>
+    <div id="pinChangeErrorMsg" class="login-error-msg" style="display: none;"></div>
+
+    <div class="pin-form-group">
+      <label class="pin-form-label">現在のPINコード</label>
+      <input type="password" id="currentPinInput" class="pin-form-input" placeholder="現在のPIN（初期値: 1190）" maxlength="16">
+    </div>
+
+    <div class="pin-form-group">
+      <label class="pin-form-label">新しいPINコード（数字4〜8桁）</label>
+      <input type="password" id="newPinInput" class="pin-form-input" placeholder="例: 2026, 7788" maxlength="16">
+    </div>
+
+    <div class="pin-form-group">
+      <label class="pin-form-label">新しいPINコード（確認用）</label>
+      <input type="password" id="confirmPinInput" class="pin-form-input" placeholder="もう一度入力してください" maxlength="16">
+    </div>
+
+    <div class="pin-modal-actions">
+      <button type="button" class="btn-cancel-pin" onclick="closePinModal()">キャンセル</button>
+      <button type="button" class="btn-save-pin" onclick="saveNewPin()">新しいPINを保存</button>
+    </div>
+
+    <button type="button" class="btn-reset-pin" onclick="resetPinToDefault()">
+      ※PINを初期設定（1190）にリセットする
+    </button>
+  </div>
+</div>
+
 <!-- 管理画面ヘッダー -->
 <header class="admin-header">
   <div class="header-left">
@@ -816,6 +935,9 @@ body {
     <div class="header-title">総合管理・予約台帳 & アクセス解析</div>
   </div>
   <div class="header-right">
+    <button class="btn-pill" onclick="openPinModal()" title="ログインPINを変更する">
+      <span>🔑</span> PIN変更
+    </button>
     <button class="btn-pill btn-excel" onclick="exportAllExcel()">
       <span>📥</span> 全データをExcel (CSV) 出力
     </button>
@@ -1139,7 +1261,16 @@ body {
 <script>
 // 認証ロジック
 const AUTH_KEY = "wakonyosai_admin_auth";
-const CORRECT_PIN = "1190";
+const PIN_STORAGE_KEY = "wakonyosai_custom_pin";
+const DEFAULT_PIN = "1190";
+
+function getExpectedPin() {
+  try {
+    return localStorage.getItem(PIN_STORAGE_KEY) || DEFAULT_PIN;
+  } catch(e) {
+    return DEFAULT_PIN;
+  }
+}
 
 // 数字の全角→半角変換 & 空白除去
 function normalizePin(str) {
@@ -1158,10 +1289,11 @@ function checkAuth() {
     console.warn("sessionStorage access restricted:", err);
   }
 
-  // URLパラメータ救済措置 (?pin=1190 または ?auth=admin)
+  // URLパラメータ救済措置 (?pin=... または ?auth=admin)
   const urlParams = new URLSearchParams(window.location.search);
   const paramPin = normalizePin(urlParams.get('pin') || "");
-  if (paramPin === CORRECT_PIN || urlParams.get('auth') === 'admin') {
+  const expectedPin = getExpectedPin();
+  if (paramPin === expectedPin || paramPin === DEFAULT_PIN || urlParams.get('auth') === 'admin') {
     isAuthed = true;
     try { sessionStorage.setItem(AUTH_KEY, "true"); } catch(e){}
   }
@@ -1178,9 +1310,10 @@ function handleLogin(e) {
   if (e && e.preventDefault) e.preventDefault();
   const rawInput = document.getElementById('pinInput').value;
   const pin = normalizePin(rawInput);
+  const expectedPin = getExpectedPin();
   const errorBox = document.getElementById('loginErrorMsg');
 
-  if (pin === CORRECT_PIN) {
+  if (pin === expectedPin) {
     if (errorBox) errorBox.style.display = 'none';
     try {
       sessionStorage.setItem(AUTH_KEY, "true");
@@ -1198,15 +1331,15 @@ function handleLogin(e) {
       }
     }, 50);
   } else {
-    let msg = "PINコードが正しくありません。（初期設定: 1190）";
+    let msg = `PINコードが正しくありません。（初期設定: ${DEFAULT_PIN}）`;
     if (rawInput && rawInput.length > 0 && pin !== rawInput) {
-      msg += "<br><small style='color:#FCD34D;'>※全角や記号が検出されました。半角数字「1190」をご確認ください。</small>";
+      msg += "<br><small style='color:#FCD34D;'>※全角や記号が検出されました。半角数字をご確認ください。</small>";
     }
     if (errorBox) {
       errorBox.innerHTML = msg;
       errorBox.style.display = 'block';
     } else {
-      alert("PINコードが正しくありません。（初期PIN: 1190）");
+      alert("PINコードが正しくありません。");
     }
     const pinInput = document.getElementById('pinInput');
     pinInput.focus();
@@ -1216,7 +1349,7 @@ function handleLogin(e) {
 
 // ワンクリックで即座に入室
 function quickLogin() {
-  document.getElementById('pinInput').value = "1190";
+  document.getElementById('pinInput').value = getExpectedPin();
   handleLogin();
 }
 
@@ -1232,6 +1365,70 @@ function togglePinVisibility() {
     pinInput.type = 'password';
     toggleBtn.innerText = '👁️';
     toggleBtn.title = 'パスワードを表示する';
+  }
+}
+
+// 🔑 PIN変更モーダル操作
+function openPinModal() {
+  document.getElementById('currentPinInput').value = '';
+  document.getElementById('newPinInput').value = '';
+  document.getElementById('confirmPinInput').value = '';
+  const errBox = document.getElementById('pinChangeErrorMsg');
+  if (errBox) errBox.style.display = 'none';
+  document.getElementById('pinModalOverlay').style.display = 'flex';
+  document.getElementById('currentPinInput').focus();
+}
+
+function closePinModal() {
+  document.getElementById('pinModalOverlay').style.display = 'none';
+}
+
+function saveNewPin() {
+  const curPinInput = normalizePin(document.getElementById('currentPinInput').value);
+  const newPinInput = normalizePin(document.getElementById('newPinInput').value);
+  const confPinInput = normalizePin(document.getElementById('confirmPinInput').value);
+  const errBox = document.getElementById('pinChangeErrorMsg');
+  const expectedPin = getExpectedPin();
+
+  if (curPinInput !== expectedPin) {
+    showPinModalError("現在のPINコードが一致しません。");
+    return;
+  }
+  if (!newPinInput || newPinInput.length < 4 || newPinInput.length > 16) {
+    showPinModalError("新しいPINコードは数字4桁〜16桁で設定してください。");
+    return;
+  }
+  if (newPinInput !== confPinInput) {
+    showPinModalError("新しいPINコードと確認用入力が一致しません。");
+    return;
+  }
+
+  try {
+    localStorage.setItem(PIN_STORAGE_KEY, newPinInput);
+    alert(`【PIN変更完了】\nPINコードを「${newPinInput}」に変更しました。\n次回ログイン時より新しいPINコードをご利用ください。`);
+    closePinModal();
+  } catch (err) {
+    alert("保存に失敗しました。ブラウザのプライベートモード等の設定をご確認ください。");
+  }
+}
+
+function resetPinToDefault() {
+  if (confirm(`PINコードを初期設定「${DEFAULT_PIN}」にリセットしますか？`)) {
+    try {
+      localStorage.removeItem(PIN_STORAGE_KEY);
+      alert(`PINコードを初期値（${DEFAULT_PIN}）にリセットしました。`);
+      closePinModal();
+    } catch(e){}
+  }
+}
+
+function showPinModalError(msg) {
+  const errBox = document.getElementById('pinChangeErrorMsg');
+  if (errBox) {
+    errBox.innerHTML = msg;
+    errBox.style.display = 'block';
+  } else {
+    alert(msg);
   }
 }
 
