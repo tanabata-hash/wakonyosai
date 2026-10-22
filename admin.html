@@ -885,26 +885,12 @@ body {
       <span style="font-size: 1.25rem;">💡</span>
       <h2 class="insight-title mincho">今後の事業拡大に向けたデータ示唆（インサイト）</h2>
     </div>
-    <div class="insight-grid">
+    <div class="insight-grid" id="insightGrid">
       <div class="insight-item">
-        <div class="insight-tag">営業ゴールデンタイム</div>
+        <div class="insight-tag">データ蓄積中</div>
         <div class="insight-text">
-          アクセスピークは<strong>14:30 〜 16:30（仕込み・アイドル時）</strong>および<strong>22:00以降（営業終了後）</strong>に集中しています。<br>
-          👉 <strong>料理長・店長への電話やDM送付はこの時間帯が最も面談化率が高い</strong>と推測されます。
-        </div>
-      </div>
-      <div class="insight-item">
-        <div class="insight-tag">重点エリア・商圏</div>
-        <div class="insight-text">
-          アクセス元の<strong>64%が東京都内（中央区銀座・港区・千代田区）</strong>、次いで<strong>京都・大阪</strong>が占めています。<br>
-          👉 <strong>銀座・麻布周辺での対面ロールプレイング提案</strong>が最も刺さりやすく、次の拠点として京都祇園エリアの開拓が有望です。
-        </div>
-      </div>
-      <div class="insight-item">
-        <div class="insight-tag">プラン申込・成約動向</div>
-        <div class="insight-text">
-          全14件の予約中、<strong>3件（21.4%）が「おもてなし英語導入スプリント（40万円）」への直接申込</strong>です。<br>
-          👉 <strong>無料相談を挟まずに即導入を希望する顧客が存在</strong>するため、限定枠の希少性をアピールすることが受注速度を加速させます。
+          現在、公開サイトからのリアルタイムアクセスおよび予約申込データを収集中です。<br>
+          👉 <strong>訪問や予約が発生すると、時間帯・商圏エリア・成約傾向がここに自動分析されます。</strong>
         </div>
       </div>
     </div>
@@ -917,10 +903,10 @@ body {
         <span>無料相談 予約数</span>
         <span>☕</span>
       </div>
-      <div class="kpi-value outfit" style="color: var(--accent-blue);" id="kpiFreeCount">11</div>
+      <div class="kpi-value outfit" style="color: var(--accent-blue);" id="kpiFreeCount">0</div>
       <div class="kpi-trend">
         <span class="trend-up">15分オンライン相談</span>
-        <span class="trend-sub">リード顧客</span>
+        <span class="trend-sub" id="kpiFreeSub">受付中 0件</span>
       </div>
     </div>
 
@@ -929,10 +915,10 @@ body {
         <span>導入スプリント 予約数</span>
         <span>🔥</span>
       </div>
-      <div class="kpi-value outfit" style="color: var(--accent-gold);" id="kpiSprintCount">3</div>
+      <div class="kpi-value outfit" style="color: var(--accent-gold);" id="kpiSprintCount">0</div>
       <div class="kpi-trend">
         <span class="trend-up" style="color: var(--accent-gold-light);">40万円プラン申込</span>
-        <span class="trend-sub">想定売上 120万円</span>
+        <span class="trend-sub" id="kpiSprintSub">想定売上 0円</span>
       </div>
     </div>
 
@@ -941,10 +927,10 @@ body {
         <span>総アクセス数 (PV)</span>
         <span>👁️</span>
       </div>
-      <div class="kpi-value outfit" id="kpiPv">1,428</div>
+      <div class="kpi-value outfit" id="kpiPv">0</div>
       <div class="kpi-trend">
-        <span class="trend-up">↑ +24.8%</span>
-        <span class="trend-sub">前週比</span>
+        <span class="trend-up" id="kpiPvTrend">リアルタイム計測中</span>
+        <span class="trend-sub">累計ページビュー</span>
       </div>
     </div>
 
@@ -953,10 +939,10 @@ body {
         <span>ユニーク訪問者 (UU)</span>
         <span>👥</span>
       </div>
-      <div class="kpi-value outfit" id="kpiUu">612</div>
+      <div class="kpi-value outfit" id="kpiUu">0</div>
       <div class="kpi-trend">
-        <span class="trend-up">↑ +18.2%</span>
-        <span class="trend-sub">高級飲食・旅館</span>
+        <span class="trend-up" id="kpiUuTrend">リアルタイム計測中</span>
+        <span class="trend-sub">訪問端末数</span>
       </div>
     </div>
 
@@ -965,9 +951,9 @@ body {
         <span>提案書PDF閲覧数</span>
         <span>📄</span>
       </div>
-      <div class="kpi-value outfit" id="kpiPdf">320</div>
+      <div class="kpi-value outfit" id="kpiPdf">0</div>
       <div class="kpi-trend">
-        <span class="trend-up" style="color: var(--accent-gold-light);">閲覧率 22.4%</span>
+        <span class="trend-up" style="color: var(--accent-gold-light);" id="kpiPdfRate">閲覧率 0%</span>
         <span class="trend-sub">高関心層</span>
       </div>
     </div>
@@ -1238,115 +1224,150 @@ function toggleBookingStatus() {
   }
 }
 
-// 予約顧客台帳データ
+// 予約顧客台帳データ（ダミーデータを全削除し実データのみ取得）
 function getBookingLeads() {
-  const localLeads = JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
-  
-  const baseLeads = [
-    { date: "2026/10/22 09:30", planType: "おもてなし英語導入スプリント申込", storeName: "祇園 割烹 〇〇", name: "村田 宗一郎 様 (若旦那)", email: "murata@gion-kappo.jp", phone: "075-531-XXXX", dateTime: "2026/10/25 15:00", format: "オンライン（Zoom）", message: "来季のインバウンド強化に向け、全コースの英語解説とポケットガイド制作を依頼したい。", status: "商談中" },
-    { date: "2026/10/21 15:20", planType: "おもてなし英語導入スプリント申込", storeName: "銀座 懐石 〇〇", name: "高橋 賢二 様 (総支配人)", email: "takahashi@ginza-kaiseki.com", phone: "03-3571-XXXX", dateTime: "2026/10/26 15:30", format: "対面ご訪問（銀座・麻布限定）", message: "稲葉様の事例を拝見しました。ホールスタッフと板前の英会話ロールプレイングを導入したいです。", status: "受注確定" },
-    { date: "2026/10/20 16:40", planType: "おもてなし英語導入スプリント申込", storeName: "赤坂 鮨 〇〇", name: "佐藤 慎太郎 様 (大将)", email: "sato@akasaka-sushi.jp", phone: "03-3585-XXXX", dateTime: "2026/10/27 16:00", format: "対面ご訪問（銀座・麻布限定）", message: "魚の旬や仕込みのこだわりを英語で伝えられるようにしたい。", status: "商談中" },
-    { date: "2026/10/22 10:15", planType: "15分無料オンライン相談", storeName: "麻布十番 炭火割烹 〇〇", name: "鈴木 大地 様", email: "suzuki@azabu-sumibi.jp", phone: "03-5442-XXXX", dateTime: "2026/10/24 15:00", format: "オンライン（Zoom）", message: "まず導入の進め方や現場スタッフの負担感について相談したい。", status: "新規受付" },
-    { date: "2026/10/21 18:00", planType: "15分無料オンライン相談", storeName: "日本橋 鰻 〇〇", name: "小林 誠司 様", email: "kobayashi@nihonbashi-unagi.com", phone: "03-3241-XXXX", dateTime: "2026/10/24 16:30", format: "オンライン（Zoom）", message: "タレの歴史や炭火焼きの技法の伝え方について相談希望。", status: "完了" },
-    { date: "2026/10/20 14:10", planType: "15分無料オンライン相談", storeName: "六本木 日本料理 〇〇", name: "渡辺 健一 様", email: "watanabe@roppongi-washoku.com", phone: "03-5770-XXXX", dateTime: "2026/10/23 15:00", format: "対面ご訪問（銀座・麻布限定）", message: "外国人客比率が4割を超えており、オペレーション改善を相談したい。", status: "完了" }
-  ];
-
-  return [...localLeads, ...baseLeads];
+  try {
+    return JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
+  } catch(e) {
+    return [];
+  }
 }
 
 let allLeads = [];
 
 function renderBookings(leads) {
   const tbody = document.getElementById('bookingTableBody');
+  if (!leads || leads.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+          <div style="font-size: 1.8rem; margin-bottom: 8px;">📭</div>
+          <div style="font-weight: 600; color: #CBD5E1; margin-bottom: 4px;">現在、予約・相談のお申込みはありません（0件）</div>
+          <div style="font-size: 0.8rem;">公開サイトの予約フォームから送信された申込データがここに自動反映されます。</div>
+        </td>
+      </tr>
+    `;
+    document.getElementById('kpiSprintCount').innerText = "0";
+    document.getElementById('kpiFreeCount').innerText = "0";
+    const subSprint = document.getElementById('kpiSprintSub');
+    if (subSprint) subSprint.innerText = "想定売上 0円";
+    const subFree = document.getElementById('kpiFreeSub');
+    if (subFree) subFree.innerText = "受付中 0件";
+    return;
+  }
+
   tbody.innerHTML = leads.map(l => {
-    const isSprint = l.planType.includes("スプリント");
+    const isSprint = l.planType && l.planType.includes("スプリント");
     const badgeClass = isSprint ? "badge-plan-sprint" : "badge-plan-free";
     const icon = isSprint ? "🔥" : "☕";
 
     return `
       <tr>
-        <td class="outfit" style="color: #94A3B8;">${l.date}</td>
-        <td><span class="${badgeClass}">${icon} ${l.planType}</span></td>
-        <td style="font-weight: 600; color: #FFF;">${l.storeName}</td>
-        <td>${l.name}</td>
+        <td class="outfit" style="color: #94A3B8;">${l.date || '-'}</td>
+        <td><span class="${badgeClass}">${icon} ${l.planType || '相談'}</span></td>
+        <td style="font-weight: 600; color: #FFF;">${l.storeName || '-'}</td>
+        <td>${l.name || '-'}</td>
         <td style="font-size: 0.8rem; color: #CBD5E1;">
-          <div>✉ ${l.email}</div>
-          <div>☎ ${l.phone}</div>
+          <div>✉ ${l.email || '-'}</div>
+          <div>☎ ${l.phone || '-'}</div>
         </td>
-        <td class="outfit" style="color: var(--accent-gold-light); font-weight: 600;">${l.dateTime}</td>
-        <td style="font-size: 0.8rem;">${l.format}</td>
-        <td><span class="status-badge-lead">${l.status}</span></td>
+        <td class="outfit" style="color: var(--accent-gold-light); font-weight: 600;">${l.dateTime || '-'}</td>
+        <td style="font-size: 0.8rem;">${l.format || '-'}</td>
+        <td><span class="status-badge-lead">${l.status || '新規受付'}</span></td>
       </tr>
     `;
   }).join('');
 
-  // カウント更新
-  const sprintCount = leads.filter(l => l.planType.includes("スプリント")).length;
-  const freeCount = leads.filter(l => !l.planType.includes("スプリント")).length;
+  // 実データからのカウント集計
+  const sprintCount = leads.filter(l => l.planType && l.planType.includes("スプリント")).length;
+  const freeCount = leads.filter(l => !l.planType || !l.planType.includes("スプリント")).length;
   document.getElementById('kpiSprintCount').innerText = sprintCount;
   document.getElementById('kpiFreeCount').innerText = freeCount;
+  const subSprint = document.getElementById('kpiSprintSub');
+  if (subSprint) subSprint.innerText = `想定売上 ${(sprintCount * 40).toLocaleString()}万円`;
+  const subFree = document.getElementById('kpiFreeSub');
+  if (subFree) subFree.innerText = `相談リード ${freeCount}件`;
 }
 
 function filterBookings() {
   const query = document.getElementById('bookingSearch').value.toLowerCase();
   const filtered = allLeads.filter(l => 
-    l.storeName.toLowerCase().includes(query) ||
-    l.name.toLowerCase().includes(query) ||
-    l.planType.toLowerCase().includes(query) ||
-    l.email.toLowerCase().includes(query)
+    (l.storeName || '').toLowerCase().includes(query) ||
+    (l.name || '').toLowerCase().includes(query) ||
+    (l.planType || '').toLowerCase().includes(query) ||
+    (l.email || '').toLowerCase().includes(query)
   );
   renderBookings(filtered);
 }
 
-// アクセスログデータ
+// アクセスログデータ（ダミーデータを全削除し実ログのみ取得）
 function getAccessLogs() {
-  const localLogs = JSON.parse(localStorage.getItem('wakonyosai_real_logs') || '[]');
-  const baseLogs = [
-    { time: "2026/10/22 11:18", loc: "東京都中央区 (銀座)", badge: "badge-tokyo", device: "iPhone (Safari)", ref: "Direct / QRコード", action: "哲学・意図セクション精読", persona: "割烹オーナー" },
-    { time: "2026/10/22 10:45", loc: "東京都港区 (六本木)", badge: "badge-tokyo", device: "Mac (Chrome)", ref: "Google検索「日本料理 英語 接客」", action: "PDFサンプル閲覧 (稲葉様)", persona: "高級鮨店 総支配人" },
-    { time: "2026/10/22 09:30", loc: "京都府京都市 (東山区/祇園)", badge: "badge-kyoto", device: "iPad (Safari)", ref: "知人からの紹介リンク", action: "導入スプリント申込完了", persona: "老舗旅館 若旦那" },
-    { time: "2026/10/22 01:15", loc: "東京都千代田区 (丸の内)", badge: "badge-tokyo", device: "iPhone (Safari)", ref: "Instagramプロフィール", action: "料金・指導メソッド確認", persona: "日本料理店 料理長" },
-    { time: "2026/10/21 23:40", loc: "大阪府大阪市 (北区/北新地)", badge: "badge-osaka", device: "Android (Chrome)", ref: "Direct / ブックマーク", action: "PDFサンプル閲覧", persona: "和食グループ 経営者" },
-    { time: "2026/10/21 16:10", loc: "東京都中央区 (日本橋)", badge: "badge-tokyo", device: "Mac (Safari)", ref: "Facebook投稿", action: "ページ全体精読 (滞在4分)", persona: "インバウンド担当マネージャー" },
-    { time: "2026/10/21 15:20", loc: "京都府京都市 (中京区)", badge: "badge-kyoto", device: "iPhone (Safari)", ref: "Google検索", action: "導入スプリント申込完了", persona: "懐石料理店 女将" },
-    { time: "2026/10/21 14:45", loc: "東京都港区 (南青山)", badge: "badge-tokyo", device: "iPhone (Safari)", ref: "Direct", action: "哲学・意図セクション精読", persona: "ミシュラン星付き店 オーナーシェフ" },
-    { time: "2026/10/21 12:05", loc: "米国ニューヨーク (New York)", badge: "badge-abroad", device: "Mac (Chrome)", ref: "LinkedIn", action: "トップ・実績閲覧", persona: "海外展開プロデューサー" },
-    { time: "2026/10/20 22:30", loc: "東京都新宿区 (神楽坂)", badge: "badge-tokyo", device: "Windows (Edge)", ref: "Google検索", action: "PDFサンプル閲覧", persona: "会席割烹 店主" }
-  ];
-
-  return [...localLogs, ...baseLogs];
+  try {
+    return JSON.parse(localStorage.getItem('wakonyosai_real_logs') || '[]');
+  } catch(e) {
+    return [];
+  }
 }
 
 let allLogs = [];
 
 function renderLogs(logs) {
   const tbody = document.getElementById('logTableBody');
+  if (!logs || logs.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+          <div style="font-size: 1.8rem; margin-bottom: 8px;">🌐</div>
+          <div style="font-weight: 600; color: #CBD5E1; margin-bottom: 4px;">アクセスログデータはまだ蓄積されていません（0件）</div>
+          <div style="font-size: 0.8rem;">公開サイトへの訪問者のアクセス履歴（閲覧時刻、地域、端末、行動）がリアルタイムに記録されます。</div>
+        </td>
+      </tr>
+    `;
+    document.getElementById('kpiPv').innerText = "0";
+    document.getElementById('kpiUu').innerText = "0";
+    document.getElementById('kpiPdf').innerText = "0";
+    return;
+  }
+
   tbody.innerHTML = logs.map(l => `
     <tr>
-      <td class="outfit" style="color: #94A3B8;">${l.time}</td>
-      <td><span class="badge-tag ${l.badge || 'badge-tokyo'}">${l.loc}</span></td>
-      <td>${l.device}</td>
-      <td style="color: #CBD5E1;">${l.ref}</td>
-      <td><span style="color: var(--accent-gold-light); font-weight: 500;">${l.action}</span></td>
-      <td style="color: var(--accent-gold-light); font-weight: 500;">${l.persona}</td>
+      <td class="outfit" style="color: #94A3B8;">${l.time || '-'}</td>
+      <td><span class="badge-tag ${l.badge || 'badge-tokyo'}">${l.loc || '国内'}</span></td>
+      <td>${l.device || '-'}</td>
+      <td style="color: #CBD5E1;">${l.ref || 'Direct'}</td>
+      <td><span style="color: var(--accent-gold-light); font-weight: 500;">${l.action || '閲覧'}</span></td>
+      <td style="color: var(--accent-gold-light); font-weight: 500;">${l.persona || '-'}</td>
     </tr>
   `).join('');
+
+  // 実データからのKPI集計
+  const pvCount = logs.length;
+  const uniqueDevices = new Set(logs.map(l => (l.device || '') + (l.loc || ''))).size;
+  const pdfViews = logs.filter(l => (l.action && l.action.includes('PDF'))).length;
+
+  document.getElementById('kpiPv').innerText = pvCount.toLocaleString();
+  document.getElementById('kpiUu').innerText = uniqueDevices.toLocaleString();
+  document.getElementById('kpiPdf').innerText = pdfViews.toLocaleString();
+  const pdfRateEl = document.getElementById('kpiPdfRate');
+  if (pdfRateEl) {
+    const rate = pvCount > 0 ? ((pdfViews / pvCount) * 100).toFixed(1) : "0.0";
+    pdfRateEl.innerText = `閲覧率 ${rate}%`;
+  }
 }
 
 function filterLogs() {
   const query = document.getElementById('logSearch').value.toLowerCase();
   const filtered = allLogs.filter(l => 
-    l.loc.toLowerCase().includes(query) ||
-    l.device.toLowerCase().includes(query) ||
-    l.persona.toLowerCase().includes(query) ||
-    l.action.toLowerCase().includes(query)
+    (l.loc || '').toLowerCase().includes(query) ||
+    (l.device || '').toLowerCase().includes(query) ||
+    (l.persona || '').toLowerCase().includes(query) ||
+    (l.action || '').toLowerCase().includes(query)
   );
   renderLogs(filtered);
 }
 
 // 📥 Excel (CSV / UTF-8 BOM付き) 出力機能
 function downloadCSV(csvContent, fileName) {
-  // UTF-8 BOM（\uFEFF）を付与してExcelでの文字化けを防止
   const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
@@ -1360,16 +1381,16 @@ function downloadCSV(csvContent, fileName) {
 function exportBookingsExcel() {
   const headers = ["受付日時", "予約種別(プラン)", "店舗名/宿名", "ご担当者様名", "メールアドレス", "電話番号", "ご希望日時", "相談形式", "ご相談内容", "ステータス"];
   const rows = allLeads.map(l => [
-    `"${l.date}"`,
-    `"${l.planType}"`,
-    `"${l.storeName}"`,
-    `"${l.name}"`,
-    `"${l.email}"`,
-    `"${l.phone}"`,
-    `"${l.dateTime}"`,
-    `"${l.format}"`,
+    `"${l.date || ''}"`,
+    `"${l.planType || ''}"`,
+    `"${l.storeName || ''}"`,
+    `"${l.name || ''}"`,
+    `"${l.email || ''}"`,
+    `"${l.phone || ''}"`,
+    `"${l.dateTime || ''}"`,
+    `"${l.format || ''}"`,
     `"${(l.message || '').replace(/"/g, '""')}"`,
-    `"${l.status}"`
+    `"${l.status || ''}"`
   ]);
 
   const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
@@ -1379,12 +1400,12 @@ function exportBookingsExcel() {
 function exportAccessLogsExcel() {
   const headers = ["アクセス時刻", "アクセス元Location", "端末OS", "流入元(Referrer)", "閲覧行動/アクション", "推定ユーザー像"];
   const rows = allLogs.map(l => [
-    `"${l.time}"`,
-    `"${l.loc}"`,
-    `"${l.device}"`,
-    `"${l.ref}"`,
-    `"${l.action}"`,
-    `"${l.persona}"`
+    `"${l.time || ''}"`,
+    `"${l.loc || ''}"`,
+    `"${l.device || ''}"`,
+    `"${l.ref || ''}"`,
+    `"${l.action || ''}"`,
+    `"${l.persona || ''}"`
   ]);
 
   const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
@@ -1398,32 +1419,50 @@ function exportAllExcel() {
   }, 500);
 }
 
+// 主要アクセス元都市ランキング（実ログから動的集計）
 function initRankList() {
-  const ranks = [
-    { name: "東京都中央区 (銀座・日本橋)", count: "482件", pct: 85 },
-    { name: "東京都港区 (六本木・麻布・青山)", count: "394件", pct: 70 },
-    { name: "京都府京都市 (祇園・東山・中京)", count: "248件", pct: 45 },
-    { name: "大阪府大阪市 (北新地・心斎橋)", count: "162件", pct: 30 },
-    { name: "海外 (米国・シンガポール・香港)", count: "84件", pct: 15 },
-    { name: "その他国内主要都市", count: "58件", pct: 10 }
-  ];
+  const container = document.getElementById('locationRankList');
+  if (!container) return;
+  const logs = getAccessLogs();
+  if (!logs || logs.length === 0) {
+    container.innerHTML = `
+      <li style="text-align: center; padding: 32px 10px; color: var(--text-muted); list-style: none;">
+        <div style="font-size: 1.4rem; margin-bottom: 6px;">📍</div>
+        <div style="font-size: 0.85rem; color: #94A3B8;">アクセスデータ集計中</div>
+        <div style="font-size: 0.75rem; color: #64748B; margin-top: 4px;">サイトへのアクセスが発生すると、上位エリアが自動集計されます</div>
+      </li>
+    `;
+    return;
+  }
 
-  document.getElementById('locationRankList').innerHTML = ranks.map(r => `
-    <li class="location-item">
-      <div class="location-name">
-        <span>📍</span>
-        <span>${r.name}</span>
-      </div>
-      <div class="location-bar-bg">
-        <div class="location-bar-fill" style="width: ${r.pct}%;"></div>
-      </div>
-      <div class="location-count outfit">${r.count}</div>
-    </li>
-  `).join('');
+  const counts = {};
+  logs.forEach(l => {
+    const loc = l.loc || 'その他エリア';
+    counts[loc] = (counts[loc] || 0) + 1;
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 6);
+  const max = sorted[0][1] || 1;
+
+  container.innerHTML = sorted.map(([name, count]) => {
+    const pct = Math.round((count / max) * 100);
+    return `
+      <li class="location-item">
+        <div class="location-name">
+          <span>📍</span>
+          <span>${name}</span>
+        </div>
+        <div class="location-bar-bg">
+          <div class="location-bar-fill" style="width: ${pct}%;"></div>
+        </div>
+        <div class="location-count outfit">${count}件</div>
+      </li>
+    `;
+  }).join('');
 }
 
 let chartInstances = {};
 
+// グラフ描画（実データから動的集計）
 function initCharts() {
   if (typeof Chart === 'undefined') {
     console.warn("Chart.js is not loaded yet.");
@@ -1442,20 +1481,49 @@ function initCharts() {
       }
     });
 
+    const logs = getAccessLogs();
+    const leads = getBookingLeads();
+
     // 1. 時間帯別アクセス分布
+    const hourLabels = ['0時','2時','4時','6時','8時','10時','12時','14時','15時','16時','17時','18時','20時','22時','23時'];
+    const hourCounts = new Array(hourLabels.length).fill(0);
+    logs.forEach(l => {
+      if (l.time) {
+        const match = l.time.match(/(\d{1,2}):/);
+        if (match) {
+          const h = parseInt(match[1], 10);
+          if (h <= 1) hourCounts[0]++;
+          else if (h <= 3) hourCounts[1]++;
+          else if (h <= 5) hourCounts[2]++;
+          else if (h <= 7) hourCounts[3]++;
+          else if (h <= 9) hourCounts[4]++;
+          else if (h <= 11) hourCounts[5]++;
+          else if (h <= 13) hourCounts[6]++;
+          else if (h === 14) hourCounts[7]++;
+          else if (h === 15) hourCounts[8]++;
+          else if (h === 16) hourCounts[9]++;
+          else if (h === 17) hourCounts[10]++;
+          else if (h <= 19) hourCounts[11]++;
+          else if (h <= 21) hourCounts[12]++;
+          else if (h === 22) hourCounts[13]++;
+          else hourCounts[14]++;
+        }
+      }
+    });
+
     const canvasHourly = document.getElementById('hourlyChart');
     if (canvasHourly) {
       chartInstances['hourly'] = new Chart(canvasHourly.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: ['0時','2時','4時','6時','8時','10時','12時','14時','15時','16時','17時','18時','20時','22時','23時'],
+          labels: hourLabels,
           datasets: [{
             label: 'アクセス数',
-            data: [42, 12, 4, 8, 28, 64, 88, 168, 194, 182, 92, 54, 76, 178, 134],
+            data: hourCounts,
             backgroundColor: function(context) {
               const val = context.raw;
-              if (val > 150) return '#D4AF37';
-              return 'rgba(56, 189, 248, 0.6)';
+              if (val > 0) return '#D4AF37';
+              return 'rgba(212, 175, 55, 0.2)';
             },
             borderRadius: 4
           }]
@@ -1464,21 +1532,25 @@ function initCharts() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
         }
       });
     }
 
     // 2. 予約種別の内訳ドーナツチャート
+    const sprintCount = leads.filter(l => l.planType && l.planType.includes("スプリント")).length;
+    const freeCount = leads.filter(l => !l.planType || !l.planType.includes("スプリント")).length;
+    const hasBookings = (sprintCount + freeCount) > 0;
+
     const canvasPlan = document.getElementById('planDonutChart');
     if (canvasPlan) {
       chartInstances['plan'] = new Chart(canvasPlan.getContext('2d'), {
         type: 'doughnut',
         data: {
-          labels: ['15分無料オンライン相談 (11件)', '導入スプリント申込 (3件)'],
+          labels: hasBookings ? [`15分無料相談 (${freeCount}件)`, `導入スプリント (${sprintCount}件)`] : ['予約受付待ち (0件)'],
           datasets: [{
-            data: [11, 3],
-            backgroundColor: ['#38BDF8', '#D4AF37'],
+            data: hasBookings ? [freeCount, sprintCount] : [1],
+            backgroundColor: hasBookings ? ['#38BDF8', '#D4AF37'] : ['rgba(255, 255, 255, 0.1)'],
             borderWidth: 0
           }]
         },
@@ -1493,16 +1565,32 @@ function initCharts() {
       });
     }
 
-    // 3. 日別推移
+    // 3. 日別推移（直近7日間）
+    const dayLabels = [];
+    const dayCounts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const str = `${d.getMonth()+1}/${d.getDate()}`;
+      dayLabels.push(i === 0 ? '本日' : str);
+      
+      const count = logs.filter(l => {
+        if (!l.time) return false;
+        const dStr = `${d.getMonth()+1}/${d.getDate()}`;
+        return l.time.includes(dStr) || l.time.startsWith(d.toISOString().slice(0, 10).replace(/-/g, '/'));
+      }).length;
+      dayCounts.push(count);
+    }
+
     const canvasDaily = document.getElementById('dailyChart');
     if (canvasDaily) {
       chartInstances['daily'] = new Chart(canvasDaily.getContext('2d'), {
         type: 'line',
         data: {
-          labels: ['10/9','10/11','10/13','10/15','10/17','10/19','10/21','本日'],
+          labels: dayLabels,
           datasets: [{
             label: 'PV数',
-            data: [45, 68, 92, 114, 142, 178, 245, 298],
+            data: dayCounts,
             borderColor: '#D4AF37',
             backgroundColor: 'rgba(212, 175, 55, 0.1)',
             tension: 0.35,
@@ -1514,22 +1602,31 @@ function initCharts() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
         }
       });
     }
 
-    // 4. 流入元チャネル
+    // 4. 流入元チャネル（実ログから集計）
+    const refCounts = {};
+    logs.forEach(l => {
+      const ref = l.ref || 'Direct / 直接訪問';
+      refCounts[ref] = (refCounts[ref] || 0) + 1;
+    });
+    const refEntries = Object.entries(refCounts);
+    const refLabels = refEntries.length > 0 ? refEntries.map(e => e[0]) : ['Direct', 'Google検索', '知人紹介', 'SNS'];
+    const refData = refEntries.length > 0 ? refEntries.map(e => e[1]) : [0, 0, 0, 0];
+
     const canvasRef = document.getElementById('referrerChart');
     if (canvasRef) {
       chartInstances['ref'] = new Chart(canvasRef.getContext('2d'), {
         type: 'bar',
         indexAxis: 'y',
         data: {
-          labels: ['直接 / 名刺QR', 'Google検索', '知人・業界紹介', 'SNS (Instagram/X)'],
+          labels: refLabels,
           datasets: [{
-            label: '流入割合 (%)',
-            data: [42, 28, 18, 12],
+            label: 'アクセス件数',
+            data: refData,
             backgroundColor: ['#D4AF37', '#38BDF8', '#34D399', '#A78BFA'],
             borderRadius: 4
           }]
@@ -1538,7 +1635,7 @@ function initCharts() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true, max: 50 } }
+          scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
         }
       });
     }
@@ -1754,6 +1851,10 @@ function refreshData() {
   renderLogs(allLogs);
   allLeads = getBookingLeads();
   renderBookings(allLeads);
+  initRankList();
+  if (sessionStorage.getItem(AUTH_KEY) === "true") {
+    initCharts();
+  }
   renderBookingStatus();
   currentSchedule = getScheduleConfig();
   renderScheduleUI();
