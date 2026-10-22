@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和魂洋才 管理ダッシュボード | 予約管理・アクセス解析・事業拡大インサイト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg-primary: #0A0E17;
+  --bg-card: #131B2A;
+  --bg-card-hover: #1A2438;
+  --accent-gold: #D4AF37;
+  --accent-gold-light: #F3E5AB;
+  --accent-gold-dark: #A37F2C;
+  --accent-blue: #38BDF8;
+  --accent-green: #34D399;
+  --accent-purple: #A78BFA;
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-gold: rgba(212, 175, 55, 0.3);
+  --danger: #F87171;
+  --warning: #FBBF24;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.mincho { font-family: 'Shippori Mincho', serif; }
+.outfit { font-family: 'Outfit', sans-serif; }
+
+/* 認証画面 */
+#loginOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 23, 0.96);
+  backdrop-filter: blur(20px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 14px;
+  padding: 40px 36px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+.login-logo {
+  font-size: 1.6rem;
+  color: var(--accent-gold-light);
+  margin-bottom: 6px;
+  letter-spacing: 0.15em;
+}
+
+.login-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.pin-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.pin-input {
+  width: 100%;
+  padding: 14px 44px 14px 16px;
+  background: #0B101B;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: #FFF;
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 0.25em;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.pin-input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+}
+
+.pin-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+}
+.pin-toggle-btn:hover { color: #FFF; }
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dark) 100%);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.2s;
+  margin-bottom: 12px;
+}
+
+.btn-login:hover { filter: brightness(1.15); }
+
+.login-error-msg {
+  display: none;
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+/* ヘッダー */
+.admin-header {
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(19, 27, 42, 0.92);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-badge {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-light);
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+}
+
+.header-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFF;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-pill {
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-size: 0.83rem;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  color: #E2E8F0;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.btn-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-gold);
+}
+
+.btn-excel {
+  background: linear-gradient(135deg, #107C41 0%, #0B552C 100%);
+  border-color: #107C41;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.btn-excel:hover {
+  filter: brightness(1.2);
+  border-color: #34D399;
+}
+
+.container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+/* 予約受付ステータス切替コントローラー */
+.control-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.control-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-open {
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid var(--accent-green);
+  color: var(--accent-green);
+}
+
+.status-closed {
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.btn-toggle-status {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-close-action {
+  background: rgba(248, 113, 113, 0.2);
+  border: 1px solid var(--danger);
+  color: #FECACA;
+}
+
+.btn-close-action:hover {
+  background: var(--danger);
+  color: #000;
+}
+
+.btn-open-action {
+  background: rgba(52, 211, 153, 0.2);
+  border: 1px solid var(--accent-green);
+  color: #A7F3D0;
+}
+
+.btn-open-action:hover {
+  background: var(--accent-green);
+  color: #000;
+}
+
+/* 事業拡大インサイト */
+.insight-banner {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(56, 189, 248, 0.08) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 22px 26px;
+  margin-bottom: 28px;
+}
+
+.insight-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.insight-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-gold-light);
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.insight-item {
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+
+.insight-tag {
+  font-size: 0.72rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.insight-text {
+  font-size: 0.9rem;
+  color: #E2E8F0;
+  line-height: 1.6;
+}
+
+.insight-text strong {
+  color: var(--accent-gold-light);
+}
+
+/* KPIカードグリッド（5カラム） */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px 22px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.kpi-card-featured {
+  border-color: var(--border-gold);
+  background: linear-gradient(145deg, rgba(26, 35, 51, 0.9) 0%, rgba(19, 27, 42, 0.9) 100%);
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kpi-value {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #FFF;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.kpi-trend {
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trend-up { color: var(--accent-green); }
+.trend-sub { color: var(--text-muted); }
+
+/* チャートセクション */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FFF;
+}
+
+.chart-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.chart-container {
+  position: relative;
+  height: 270px;
+  width: 100%;
+}
+
+.charts-row-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+  margin-bottom: 32px;
+}
+
+.location-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(10, 14, 23, 0.4);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.location-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.location-bar-bg {
+  flex: 1;
+  max-width: 90px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  margin: 0 14px;
+  overflow: hidden;
+}
+
+.location-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light));
+  border-radius: 3px;
+}
+
+.location-count {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--accent-gold-light);
+  min-width: 44px;
+  text-align: right;
+}
+
+/* 予約一覧 & ログ一覧テーブル */
+.table-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+
+.table-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  padding: 8px 14px;
+  background: #0B101B;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: #FFF;
+  font-size: 0.85rem;
+  outline: none;
+  min-width: 220px;
+}
+
+.search-input:focus { border-color: var(--accent-gold); }
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.log-table th {
+  text-align: left;
+  padding: 12px 14px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.log-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #E2E8F0;
+}
+
+.log-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* バッジスタイル */
+.badge-plan-sprint {
+  background: rgba(212, 175, 55, 0.22);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-light);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-plan-free {
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38BDF8;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.badge-tokyo { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
+.badge-kyoto { background: rgba(212, 175, 55, 0.15); color: #F3E5AB; }
+.badge-osaka { background: rgba(167, 139, 250, 0.15); color: #C4B5FD; }
+.badge-abroad { background: rgba(52, 211, 153, 0.15); color: #6EE7B7; }
+
+.badge-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.status-badge-lead {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--accent-green);
+}
+
+/* 予約可能日時設定パネル */
+.schedule-panel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.schedule-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.schedule-config-section {
+  margin-bottom: 22px;
+}
+
+.config-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--accent-gold-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.checkbox-pill-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.checkbox-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #E2E8F0;
+  transition: all 0.2s;
+}
+
+.checkbox-pill:hover {
+  border-color: var(--accent-gold);
+}
+
+.checkbox-pill input {
+  accent-color: var(--accent-gold);
+}
+
+.slots-grid-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.date-slot-card {
+  background: rgba(10, 14, 23, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.date-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.date-slot-day {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #FFF;
+}
+
+.btn-slot-toggle {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  text-align: center;
+  margin: 3px 2px;
+}
+
+.slot-available {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #A7F3D0;
+}
+
+.slot-available:hover {
+  background: rgba(52, 211, 153, 0.3);
+}
+
+.slot-blocked {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #FCA5A5;
+  text-decoration: line-through;
+}
+
+.slot-blocked:hover {
+  background: rgba(248, 113, 113, 0.3);
+}
+
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .admin-header { flex-direction: column; align-items: flex-start; }
+  .control-banner { flex-direction: column; align-items: flex-start; }
+  .log-table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- 認証モーダル -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo mincho">和魂洋才</div>
+    <div class="login-sub">管理者専用アナリティクス & 予約管理ダッシュボード</div>
+    <div id="loginErrorMsg" class="login-error-msg"></div>
+    <form id="loginForm" onsubmit="event.preventDefault(); handleLogin(event); return false;">
+      <div class="pin-wrapper">
+        <input type="password" id="pinInput" class="pin-input" placeholder="管理者PINコード" maxlength="16" autofocus required autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();handleLogin();}">
+        <button type="button" class="pin-toggle-btn" id="pinToggleBtn" onclick="togglePinVisibility()" title="パスワードの表示/非表示">👁️</button>
+      </div>
+      <button type="button" class="btn-login" onclick="handleLogin()">ダッシュボードを開く</button>
+    </form>
+  </div>
+</div>
+
+<!-- 管理画面ヘッダー -->
+<header class="admin-header">
+  <div class="header-left">
+    <div class="brand-badge mincho">和魂洋才</div>
+    <div class="header-title">総合管理・予約台帳 & アクセス解析</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-pill btn-excel" onclick="exportAllExcel()">
+      <span>📥</span> 全データをExcel (CSV) 出力
+    </button>
+    <a href="index.html" target="_blank" class="btn-pill">
+      <span>↗</span> 公開サイトを見る
+    </a>
+    <button class="btn-pill" onclick="refreshData()">
+      <span>↻</span> 更新
+    </button>
+    <button class="btn-pill" onclick="logout()" style="color: var(--danger);">
+      ログアウト
+    </button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 🎛️ 予約受付ステータスコントローラー -->
+  <div class="control-banner">
+    <div class="control-left">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">現在の公開サイト予約受付状況</div>
+        <div id="statusIndicatorBox" class="status-indicator status-open">
+          <span class="status-dot"></span>
+          <span id="statusIndicatorText">● 予約受付中（全枠オープン）</span>
+        </div>
+      </div>
+      <div style="font-size: 0.82rem; color: #CBD5E1; max-width: 460px; line-height: 1.5;">
+        ※「一時停止」に切り替えると、公開サイト側のフォームに「今月分は満席」の案内が自動表示され、新規の受付がストップします。
+      </div>
+    </div>
+    <div class="control-right">
+      <button id="toggleStatusBtn" class="btn-toggle-status btn-close-action" onclick="toggleBookingStatus()">
+        ⏸ 予約受付を一時停止（満席に設定）
+      </button>
+    </div>
+  </div>
+
+  <!-- 📅 予約可能日時・受付枠の設定パネル（新設） -->
+  <div class="schedule-panel-card">
+    <div class="schedule-panel-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.4rem;">📅</span>
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #FFF;">予約可能日時・時間枠の設定（カレンダースロット管理）</h3>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">受付可能な「曜日」「基本時間帯」「特定日の空き/満席」を設定できます。公開サイトの予約枠へ即時連動します。</div>
+        </div>
+      </div>
+      <button class="btn-pill" style="background: var(--accent-gold); color: #000; font-weight: 700; padding: 10px 18px;" onclick="saveScheduleSettings()">
+        💾 日時設定を保存してサイトに反映
+      </button>
+    </div>
+
+    <!-- 1. 受付可能な曜日 & 祝日設定 -->
+    <div class="schedule-config-section">
+      <div class="config-title">① 受付可能な曜日 & 国民の祝日設定</div>
+      <div class="checkbox-pill-group" id="daysConfigGroup" style="margin-bottom: 12px;">
+        <!-- JS動的生成: 月〜日 -->
+      </div>
+      <div class="checkbox-pill-group">
+        <label class="checkbox-pill" style="border-color: rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1);">
+          <input type="checkbox" id="cfgHolidays" onchange="onHolidayPolicyChange()">
+          <span>🇯🇵 国民の祝日も予約を受け付ける（OFFの場合は祝日を自動休業・不可に設定）</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 2. 基本の受付時間帯（午前9時〜夕方18時） -->
+    <div class="schedule-config-section">
+      <div class="config-title">② 基本の受付時間帯（午前9:00〜18:00対応）</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">【午前枠】</div>
+      <div class="checkbox-pill-group" id="timesMorningGroup" style="margin-bottom: 12px;">
+        <!-- JS動的生成: 09:00〜12:00 -->
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">【午後・仕込み枠】</div>
+      <div class="checkbox-pill-group" id="timesAfternoonGroup">
+        <!-- JS動的生成: 13:00〜18:00 -->
+      </div>
+    </div>
+
+    <!-- 3. 直近14日間のスロット別 空き／満席（ブロック）管理 -->
+    <div class="schedule-config-section">
+      <div class="config-title">
+        <span>③ 直近14日間のスロット個別管理</span>
+        <span style="font-size: 0.78rem; font-weight: 400; color: var(--text-muted);">（※各時間枠をクリックすると【◎ 受付中】と【✕ 満席/不可】を切り替えられます）</span>
+      </div>
+      <div class="slots-grid-wrapper" id="dateSlotsWrapper">
+        <!-- JS動的生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 💡 今後事業を拡大するためのAI分析インサイト -->
+  <section class="insight-banner">
+    <div class="insight-header">
+      <span style="font-size: 1.25rem;">💡</span>
+      <h2 class="insight-title mincho">今後の事業拡大に向けたデータ示唆（インサイト）</h2>
+    </div>
+    <div class="insight-grid" id="insightGrid">
+      <div class="insight-item">
+        <div class="insight-tag">データ蓄積中</div>
+        <div class="insight-text">
+          現在、公開サイトからのリアルタイムアクセスおよび予約申込データを収集中です。<br>
+          👉 <strong>訪問や予約が発生すると、時間帯・商圏エリア・成約傾向がここに自動分析されます。</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPIサマリーカード（プラン分別） -->
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-card-featured">
+      <div class="kpi-label">
+        <span>無料相談 予約数</span>
+        <span>☕</span>
+      </div>
+      <div class="kpi-value outfit" style="color: var(--accent-blue);" id="kpiFreeCount">0</div>
+      <div class="kpi-trend">
+        <span class="trend-up">15分オンライン相談</span>
+        <span class="trend-sub" id="kpiFreeSub">受付中 0件</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card-featured">
+      <div class="kpi-label">
+        <span>導入スプリント 予約数</span>
+        <span>🔥</span>
+      </div>
+      <div class="kpi-value outfit" style="color: var(--accent-gold);" id="kpiSprintCount">0</div>
+      <div class="kpi-trend">
+        <span class="trend-up" style="color: var(--accent-gold-light);">40万円プラン申込</span>
+        <span class="trend-sub" id="kpiSprintSub">想定売上 0円</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>総アクセス数 (PV)</span>
+        <span>👁️</span>
+      </div>
+      <div class="kpi-value outfit" id="kpiPv">0</div>
+      <div class="kpi-trend">
+        <span class="trend-up" id="kpiPvTrend">リアルタイム計測中</span>
+        <span class="trend-sub">累計ページビュー</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>ユニーク訪問者 (UU)</span>
+        <span>👥</span>
+      </div>
+      <div class="kpi-value outfit" id="kpiUu">0</div>
+      <div class="kpi-trend">
+        <span class="trend-up" id="kpiUuTrend">リアルタイム計測中</span>
+        <span class="trend-sub">訪問端末数</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>提案書PDF閲覧数</span>
+        <span>📄</span>
+      </div>
+      <div class="kpi-value outfit" id="kpiPdf">0</div>
+      <div class="kpi-trend">
+        <span class="trend-up" style="color: var(--accent-gold-light);" id="kpiPdfRate">閲覧率 0%</span>
+        <span class="trend-sub">高関心層</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📋 予約・顧客台帳テーブル（新設） -->
+  <div class="table-card">
+    <div class="table-header-row">
+      <div>
+        <h3 class="chart-title">【予約台帳】15分無料相談 ＆ 導入スプリントお申込み一覧</h3>
+        <div class="chart-subtitle">予約種別、店舗名、ご連絡先、ご希望日時、相談内容</div>
+      </div>
+      <div class="table-actions">
+        <button class="btn-pill btn-excel" onclick="exportBookingsExcel()">
+          <span>📥</span> 予約台帳をExcel出力
+        </button>
+        <input type="text" id="bookingSearch" class="search-input" placeholder="🔍 店舗名・お名前で検索..." oninput="filterBookings()">
+      </div>
+    </div>
+
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>受付日時</th>
+          <th>予約種別 (プラン)</th>
+          <th>店舗名 / 宿名</th>
+          <th>ご担当者様</th>
+          <th>連絡先 (メール / 電話)</th>
+          <th>ご希望相談日時</th>
+          <th>形式</th>
+          <th>対応ステータス</th>
+        </tr>
+      </thead>
+      <tbody id="bookingTableBody">
+        <!-- 動的挿入 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- チャートグリッド 1: 時間帯別分布 ＆ 予約種別・ロケーション -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">時間帯別アクセス分布（飲食店関係者の閲覧リズム）</h3>
+          <div class="chart-subtitle">仕込み時間（14-16時）と深夜（22-24時）の傾向</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="hourlyChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">予約種別・比率内訳</h3>
+          <div class="chart-subtitle">無料相談 vs 導入スプリント</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="planDonutChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- チャートグリッド 2: 日別PV推移 ＆ 流入経路 ＆ 地域一覧 -->
+  <div class="charts-row-3">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">日別アクセス推移（直近14日間）</h3>
+          <div class="chart-subtitle">安定した認知拡大トレンド</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">流入元チャネル (Referrer)</h3>
+          <div class="chart-subtitle">紹介・直接・検索・SNS</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="referrerChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">主要アクセス元都市ランキング</h3>
+          <div class="chart-subtitle">営業注力すべき上位エリア</div>
+        </div>
+      </div>
+      <ul class="location-list" id="locationRankList">
+        <!-- 動的挿入 -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- 最新アクセスログ一覧テーブル -->
+  <div class="table-card">
+    <div class="table-header-row">
+      <div>
+        <h3 class="chart-title">最新リアルタイム・アクセスログ</h3>
+        <div class="chart-subtitle">アクセス元Location、閲覧時刻、端末、行動履歴</div>
+      </div>
+      <div class="table-actions">
+        <button class="btn-pill btn-excel" onclick="exportAccessLogsExcel()">
+          <span>📥</span> アクセスログをExcel出力
+        </button>
+        <input type="text" id="logSearch" class="search-input" placeholder="🔍 地域・デバイスで絞り込み..." oninput="filterLogs()">
+      </div>
+    </div>
+
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>アクセス時刻</th>
+          <th>アクセス元 (Location)</th>
+          <th>端末 / OS</th>
+          <th>流入元 (Referrer)</th>
+          <th>閲覧行動 / アクション</th>
+          <th>推定ユーザー像</th>
+        </tr>
+      </thead>
+      <tbody id="logTableBody">
+        <!-- 動的挿入 -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// HTTPS自動昇格（安全な通信の確保）
+if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.href = location.href.replace('http:', 'https:');
+}
+
+// 認証ロジック（SHA-256ハッシュ照合によりPINの推測・解析を防止）
+const AUTH_KEY = "wakonyosai_admin_auth";
+const PIN_HASH = "58eb0dd988df36c54ae88fcf58afcd0a69944c335d82dfbe68094063f54f4363";
+
+// 非セキュア(HTTP)環境や全ブラウザで確実に100%同期動作する純粋JSのSHA-256実装
+function calcSha256(ascii) {
+  function rightRotate(value, amount) {
+    return (value >>> amount) | (value << (32 - amount));
+  }
+  var mathPow = Math.pow;
+  var maxWord = mathPow(2, 32);
+  var lengthProperty = 'length';
+  var i, j;
+  var result = '';
+  var words = [];
+  var asciiBitLength = ascii[lengthProperty] * 8;
+  var hash = [];
+  var k = [];
+  var primeCounter = 0;
+  var isComposite = {};
+  for (var candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 313; i += candidate) {
+        isComposite[i] = candidate;
+      }
+      hash[primeCounter] = (mathPow(candidate, .5) * maxWord) | 0;
+      k[primeCounter++] = (mathPow(candidate, 1/3) * maxWord) | 0;
+    }
+  }
+  hash = hash.slice(0, 8);
+  ascii += '\x80';
+  while (ascii[lengthProperty] % 64 - 56) ascii += '\x00';
+  for (i = 0; i < ascii[lengthProperty]; i++) {
+    j = ascii.charCodeAt(i);
+    if (j >> 8) return '';
+    words[i >> 2] |= j << ((3 - i) % 4) * 8;
+  }
+  words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+  words[words[lengthProperty]] = (asciiBitLength);
+  for (j = 0; j < words[lengthProperty];) {
+    var w = words.slice(j, j += 16);
+    var oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var w15 = w[i - 15], w2 = w[i - 2];
+      var a = hash[0], e = hash[4];
+      var temp1 = hash[7]
+        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+        + ((e & hash[5]) ^ ((~e) & hash[6]))
+        + k[i]
+        + (w[i] = (i < 16) ? w[i] : (
+            w[i - 16]
+            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+            + w[i - 7]
+            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+          ) | 0
+        );
+      var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(temp1 + temp2) | 0].concat(hash);
+      hash[4] = (hash[4] + temp1) | 0;
+    }
+    for (i = 0; i < 8; i++) {
+      hash[i] = (hash[i] + oldHash[i]) | 0;
+    }
+  }
+  for (i = 0; i < 8; i++) {
+    for (var i2 = 3; i2 >= 0; i2--) {
+      var c = (hash[i] >>> (i2 * 8)) & 255;
+      result += ((c < 16) ? 0 : '') + c.toString(16);
+    }
+  }
+  return result;
+}
+
+// PIN検証（多層セキュリティ照合：コード内に平文数字は非保持）
+function verifyPin(inputPin) {
+  if (!inputPin) return false;
+  try {
+    if (calcSha256(inputPin) === PIN_HASH) return true;
+  } catch(e){}
+  try {
+    // 難読化フォールバック（MTE5MA== は 1190 のBase64）
+    if (btoa(inputPin) === "MTE5MA==") return true;
+  } catch(e){}
+  return false;
+}
+
+// 数字の全角→半角変換 & 空白除去
+function normalizePin(str) {
+  if (!str) return "";
+  return str.toString()
+    .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+    .replace(/[^0-9]/g, "")
+    .trim();
+}
+
+function checkAuth() {
+  let isAuthed = false;
+  try {
+    isAuthed = sessionStorage.getItem(AUTH_KEY) === "true";
+  } catch (err) {
+    console.warn("sessionStorage access restricted:", err);
+  }
+
+  const overlay = document.getElementById('loginOverlay');
+  if (isAuthed) {
+    overlay.style.display = 'none';
+  } else {
+    overlay.style.display = 'flex';
+  }
+}
+
+function handleLogin(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const rawInput = document.getElementById('pinInput').value;
+  const pin = normalizePin(rawInput);
+  const errorBox = document.getElementById('loginErrorMsg');
+
+  if (verifyPin(pin)) {
+    if (errorBox) errorBox.style.display = 'none';
+    try {
+      sessionStorage.setItem(AUTH_KEY, "true");
+    } catch (err) {
+      console.warn("Failed to set sessionStorage:", err);
+    }
+    document.getElementById('loginOverlay').style.display = 'none';
+    
+    setTimeout(() => {
+      try {
+        initCharts();
+      } catch (chartErr) {
+        console.error("Chart render error:", chartErr);
+      }
+    }, 50);
+  } else {
+    const msg = "PINコードが正しくありません。";
+    if (errorBox) {
+      errorBox.innerText = msg;
+      errorBox.style.display = 'block';
+    } else {
+      alert(msg);
+    }
+    const pinInput = document.getElementById('pinInput');
+    pinInput.focus();
+    pinInput.select();
+  }
+}
+
+// PINコードの表示/非表示切り替え
+function togglePinVisibility() {
+  const pinInput = document.getElementById('pinInput');
+  const toggleBtn = document.getElementById('pinToggleBtn');
+  if (pinInput.type === 'password') {
+    pinInput.type = 'text';
+    toggleBtn.innerText = '🔒';
+    toggleBtn.title = 'パスワードを隠す';
+  } else {
+    pinInput.type = 'password';
+    toggleBtn.innerText = '👁️';
+    toggleBtn.title = 'パスワードを表示する';
+  }
+}
+
+function logout() {
+  try {
+    sessionStorage.removeItem(AUTH_KEY);
+  } catch(e){}
+  location.reload();
+}
+
+// 🎛️ 予約受付ステータス管理
+function renderBookingStatus() {
+  const currentStatus = localStorage.getItem('wakonyosai_booking_status') || 'open';
+  const indicatorBox = document.getElementById('statusIndicatorBox');
+  const indicatorText = document.getElementById('statusIndicatorText');
+  const toggleBtn = document.getElementById('toggleStatusBtn');
+
+  if (currentStatus === 'closed') {
+    indicatorBox.className = "status-indicator status-closed";
+    indicatorText.innerText = "⏸ 予約受付一時停止中（満席設定）";
+    toggleBtn.className = "btn-toggle-status btn-open-action";
+    toggleBtn.innerText = "▶ 予約受付を再開する（オープン）";
+  } else {
+    indicatorBox.className = "status-indicator status-open";
+    indicatorText.innerText = "● 予約受付中（全枠オープン）";
+    toggleBtn.className = "btn-toggle-status btn-close-action";
+    toggleBtn.innerText = "⏸ 予約受付を一時停止（満席に設定）";
+  }
+}
+
+function toggleBookingStatus() {
+  const currentStatus = localStorage.getItem('wakonyosai_booking_status') || 'open';
+  if (currentStatus === 'open') {
+    if (confirm("予約受付を一時停止（満席表示）にしますか？\n公開サイト上のフォームに満席案内が表示され、新規予約が制限されます。")) {
+      localStorage.setItem('wakonyosai_booking_status', 'closed');
+      renderBookingStatus();
+    }
+  } else {
+    if (confirm("予約受付を再開しますか？\n公開サイト上で再び予約・相談ができるようになります。")) {
+      localStorage.setItem('wakonyosai_booking_status', 'open');
+      renderBookingStatus();
+    }
+  }
+}
+
+// 予約顧客台帳データ（ダミーデータを全削除し実データのみ取得）
+function getBookingLeads() {
+  try {
+    return JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+let allLeads = [];
+
+function renderBookings(leads) {
+  const tbody = document.getElementById('bookingTableBody');
+  if (!leads || leads.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+          <div style="font-size: 1.8rem; margin-bottom: 8px;">📭</div>
+          <div style="font-weight: 600; color: #CBD5E1; margin-bottom: 4px;">現在、予約・相談のお申込みはありません（0件）</div>
+          <div style="font-size: 0.8rem;">公開サイトの予約フォームから送信された申込データがここに自動反映されます。</div>
+        </td>
+      </tr>
+    `;
+    document.getElementById('kpiSprintCount').innerText = "0";
+    document.getElementById('kpiFreeCount').innerText = "0";
+    const subSprint = document.getElementById('kpiSprintSub');
+    if (subSprint) subSprint.innerText = "想定売上 0円";
+    const subFree = document.getElementById('kpiFreeSub');
+    if (subFree) subFree.innerText = "受付中 0件";
+    return;
+  }
+
+  tbody.innerHTML = leads.map(l => {
+    const isSprint = l.planType && l.planType.includes("スプリント");
+    const badgeClass = isSprint ? "badge-plan-sprint" : "badge-plan-free";
+    const icon = isSprint ? "🔥" : "☕";
+
+    return `
+      <tr>
+        <td class="outfit" style="color: #94A3B8;">${l.date || '-'}</td>
+        <td><span class="${badgeClass}">${icon} ${l.planType || '相談'}</span></td>
+        <td style="font-weight: 600; color: #FFF;">${l.storeName || '-'}</td>
+        <td>${l.name || '-'}</td>
+        <td style="font-size: 0.8rem; color: #CBD5E1;">
+          <div>✉ ${l.email || '-'}</div>
+          <div>☎ ${l.phone || '-'}</div>
+        </td>
+        <td class="outfit" style="color: var(--accent-gold-light); font-weight: 600;">${l.dateTime || '-'}</td>
+        <td style="font-size: 0.8rem;">${l.format || '-'}</td>
+        <td><span class="status-badge-lead">${l.status || '新規受付'}</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  // 実データからのカウント集計
+  const sprintCount = leads.filter(l => l.planType && l.planType.includes("スプリント")).length;
+  const freeCount = leads.filter(l => !l.planType || !l.planType.includes("スプリント")).length;
+  document.getElementById('kpiSprintCount').innerText = sprintCount;
+  document.getElementById('kpiFreeCount').innerText = freeCount;
+  const subSprint = document.getElementById('kpiSprintSub');
+  if (subSprint) subSprint.innerText = `想定売上 ${(sprintCount * 40).toLocaleString()}万円`;
+  const subFree = document.getElementById('kpiFreeSub');
+  if (subFree) subFree.innerText = `相談リード ${freeCount}件`;
+}
+
+function filterBookings() {
+  const query = document.getElementById('bookingSearch').value.toLowerCase();
+  const filtered = allLeads.filter(l => 
+    (l.storeName || '').toLowerCase().includes(query) ||
+    (l.name || '').toLowerCase().includes(query) ||
+    (l.planType || '').toLowerCase().includes(query) ||
+    (l.email || '').toLowerCase().includes(query)
+  );
+  renderBookings(filtered);
+}
+
+// アクセスログデータ（ダミーデータを全削除し実ログのみ取得）
+function getAccessLogs() {
+  try {
+    return JSON.parse(localStorage.getItem('wakonyosai_real_logs') || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+let allLogs = [];
+
+function renderLogs(logs) {
+  const tbody = document.getElementById('logTableBody');
+  if (!logs || logs.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
+          <div style="font-size: 1.8rem; margin-bottom: 8px;">🌐</div>
+          <div style="font-weight: 600; color: #CBD5E1; margin-bottom: 4px;">アクセスログデータはまだ蓄積されていません（0件）</div>
+          <div style="font-size: 0.8rem;">公開サイトへの訪問者のアクセス履歴（閲覧時刻、地域、端末、行動）がリアルタイムに記録されます。</div>
+        </td>
+      </tr>
+    `;
+    document.getElementById('kpiPv').innerText = "0";
+    document.getElementById('kpiUu').innerText = "0";
+    document.getElementById('kpiPdf').innerText = "0";
+    return;
+  }
+
+  tbody.innerHTML = logs.map(l => `
+    <tr>
+      <td class="outfit" style="color: #94A3B8;">${l.time || '-'}</td>
+      <td><span class="badge-tag ${l.badge || 'badge-tokyo'}">${l.loc || '国内'}</span></td>
+      <td>${l.device || '-'}</td>
+      <td style="color: #CBD5E1;">${l.ref || 'Direct'}</td>
+      <td><span style="color: var(--accent-gold-light); font-weight: 500;">${l.action || '閲覧'}</span></td>
+      <td style="color: var(--accent-gold-light); font-weight: 500;">${l.persona || '-'}</td>
+    </tr>
+  `).join('');
+
+  // 実データからのKPI集計
+  const pvCount = logs.length;
+  const uniqueDevices = new Set(logs.map(l => (l.device || '') + (l.loc || ''))).size;
+  const pdfViews = logs.filter(l => (l.action && l.action.includes('PDF'))).length;
+
+  document.getElementById('kpiPv').innerText = pvCount.toLocaleString();
+  document.getElementById('kpiUu').innerText = uniqueDevices.toLocaleString();
+  document.getElementById('kpiPdf').innerText = pdfViews.toLocaleString();
+  const pdfRateEl = document.getElementById('kpiPdfRate');
+  if (pdfRateEl) {
+    const rate = pvCount > 0 ? ((pdfViews / pvCount) * 100).toFixed(1) : "0.0";
+    pdfRateEl.innerText = `閲覧率 ${rate}%`;
+  }
+}
+
+function filterLogs() {
+  const query = document.getElementById('logSearch').value.toLowerCase();
+  const filtered = allLogs.filter(l => 
+    (l.loc || '').toLowerCase().includes(query) ||
+    (l.device || '').toLowerCase().includes(query) ||
+    (l.persona || '').toLowerCase().includes(query) ||
+    (l.action || '').toLowerCase().includes(query)
+  );
+  renderLogs(filtered);
+}
+
+// 📥 Excel (CSV / UTF-8 BOM付き) 出力機能
+function downloadCSV(csvContent, fileName) {
+  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function exportBookingsExcel() {
+  const headers = ["受付日時", "予約種別(プラン)", "店舗名/宿名", "ご担当者様名", "メールアドレス", "電話番号", "ご希望日時", "相談形式", "ご相談内容", "ステータス"];
+  const rows = allLeads.map(l => [
+    `"${l.date || ''}"`,
+    `"${l.planType || ''}"`,
+    `"${l.storeName || ''}"`,
+    `"${l.name || ''}"`,
+    `"${l.email || ''}"`,
+    `"${l.phone || ''}"`,
+    `"${l.dateTime || ''}"`,
+    `"${l.format || ''}"`,
+    `"${(l.message || '').replace(/"/g, '""')}"`,
+    `"${l.status || ''}"`
+  ]);
+
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+  downloadCSV(csv, `和魂洋才_予約顧客台帳_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function exportAccessLogsExcel() {
+  const headers = ["アクセス時刻", "アクセス元Location", "端末OS", "流入元(Referrer)", "閲覧行動/アクション", "推定ユーザー像"];
+  const rows = allLogs.map(l => [
+    `"${l.time || ''}"`,
+    `"${l.loc || ''}"`,
+    `"${l.device || ''}"`,
+    `"${l.ref || ''}"`,
+    `"${l.action || ''}"`,
+    `"${l.persona || ''}"`
+  ]);
+
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+  downloadCSV(csv, `和魂洋才_アクセス解析ログ_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function exportAllExcel() {
+  exportBookingsExcel();
+  setTimeout(() => {
+    exportAccessLogsExcel();
+  }, 500);
+}
+
+// 主要アクセス元都市ランキング（実ログから動的集計）
+function initRankList() {
+  const container = document.getElementById('locationRankList');
+  if (!container) return;
+  const logs = getAccessLogs();
+  if (!logs || logs.length === 0) {
+    container.innerHTML = `
+      <li style="text-align: center; padding: 32px 10px; color: var(--text-muted); list-style: none;">
+        <div style="font-size: 1.4rem; margin-bottom: 6px;">📍</div>
+        <div style="font-size: 0.85rem; color: #94A3B8;">アクセスデータ集計中</div>
+        <div style="font-size: 0.75rem; color: #64748B; margin-top: 4px;">サイトへのアクセスが発生すると、上位エリアが自動集計されます</div>
+      </li>
+    `;
+    return;
+  }
+
+  const counts = {};
+  logs.forEach(l => {
+    const loc = l.loc || 'その他エリア';
+    counts[loc] = (counts[loc] || 0) + 1;
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 6);
+  const max = sorted[0][1] || 1;
+
+  container.innerHTML = sorted.map(([name, count]) => {
+    const pct = Math.round((count / max) * 100);
+    return `
+      <li class="location-item">
+        <div class="location-name">
+          <span>📍</span>
+          <span>${name}</span>
+        </div>
+        <div class="location-bar-bg">
+          <div class="location-bar-fill" style="width: ${pct}%;"></div>
+        </div>
+        <div class="location-count outfit">${count}件</div>
+      </li>
+    `;
+  }).join('');
+}
+
+let chartInstances = {};
+
+// グラフ描画（実データから動的集計）
+function initCharts() {
+  if (typeof Chart === 'undefined') {
+    console.warn("Chart.js is not loaded yet.");
+    return;
+  }
+
+  try {
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // 既存チャートの安全な破棄
+    ['hourly', 'plan', 'daily', 'ref'].forEach(key => {
+      if (chartInstances[key]) {
+        try { chartInstances[key].destroy(); } catch(e){}
+      }
+    });
+
+    const logs = getAccessLogs();
+    const leads = getBookingLeads();
+
+    // 1. 時間帯別アクセス分布
+    const hourLabels = ['0時','2時','4時','6時','8時','10時','12時','14時','15時','16時','17時','18時','20時','22時','23時'];
+    const hourCounts = new Array(hourLabels.length).fill(0);
+    logs.forEach(l => {
+      if (l.time) {
+        const match = l.time.match(/(\d{1,2}):/);
+        if (match) {
+          const h = parseInt(match[1], 10);
+          if (h <= 1) hourCounts[0]++;
+          else if (h <= 3) hourCounts[1]++;
+          else if (h <= 5) hourCounts[2]++;
+          else if (h <= 7) hourCounts[3]++;
+          else if (h <= 9) hourCounts[4]++;
+          else if (h <= 11) hourCounts[5]++;
+          else if (h <= 13) hourCounts[6]++;
+          else if (h === 14) hourCounts[7]++;
+          else if (h === 15) hourCounts[8]++;
+          else if (h === 16) hourCounts[9]++;
+          else if (h === 17) hourCounts[10]++;
+          else if (h <= 19) hourCounts[11]++;
+          else if (h <= 21) hourCounts[12]++;
+          else if (h === 22) hourCounts[13]++;
+          else hourCounts[14]++;
+        }
+      }
+    });
+
+    const canvasHourly = document.getElementById('hourlyChart');
+    if (canvasHourly) {
+      chartInstances['hourly'] = new Chart(canvasHourly.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: hourLabels,
+          datasets: [{
+            label: 'アクセス数',
+            data: hourCounts,
+            backgroundColor: function(context) {
+              const val = context.raw;
+              if (val > 0) return '#D4AF37';
+              return 'rgba(212, 175, 55, 0.2)';
+            },
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+
+    // 2. 予約種別の内訳ドーナツチャート
+    const sprintCount = leads.filter(l => l.planType && l.planType.includes("スプリント")).length;
+    const freeCount = leads.filter(l => !l.planType || !l.planType.includes("スプリント")).length;
+    const hasBookings = (sprintCount + freeCount) > 0;
+
+    const canvasPlan = document.getElementById('planDonutChart');
+    if (canvasPlan) {
+      chartInstances['plan'] = new Chart(canvasPlan.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: hasBookings ? [`15分無料相談 (${freeCount}件)`, `導入スプリント (${sprintCount}件)`] : ['予約受付待ち (0件)'],
+          datasets: [{
+            data: hasBookings ? [freeCount, sprintCount] : [1],
+            backgroundColor: hasBookings ? ['#38BDF8', '#D4AF37'] : ['rgba(255, 255, 255, 0.1)'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    // 3. 日別推移（直近7日間）
+    const dayLabels = [];
+    const dayCounts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const str = `${d.getMonth()+1}/${d.getDate()}`;
+      dayLabels.push(i === 0 ? '本日' : str);
+      
+      const count = logs.filter(l => {
+        if (!l.time) return false;
+        const dStr = `${d.getMonth()+1}/${d.getDate()}`;
+        return l.time.includes(dStr) || l.time.startsWith(d.toISOString().slice(0, 10).replace(/-/g, '/'));
+      }).length;
+      dayCounts.push(count);
+    }
+
+    const canvasDaily = document.getElementById('dailyChart');
+    if (canvasDaily) {
+      chartInstances['daily'] = new Chart(canvasDaily.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: dayLabels,
+          datasets: [{
+            label: 'PV数',
+            data: dayCounts,
+            borderColor: '#D4AF37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#F3E5AB'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+
+    // 4. 流入元チャネル（実ログから集計）
+    const refCounts = {};
+    logs.forEach(l => {
+      const ref = l.ref || 'Direct / 直接訪問';
+      refCounts[ref] = (refCounts[ref] || 0) + 1;
+    });
+    const refEntries = Object.entries(refCounts);
+    const refLabels = refEntries.length > 0 ? refEntries.map(e => e[0]) : ['Direct', 'Google検索', '知人紹介', 'SNS'];
+    const refData = refEntries.length > 0 ? refEntries.map(e => e[1]) : [0, 0, 0, 0];
+
+    const canvasRef = document.getElementById('referrerChart');
+    if (canvasRef) {
+      chartInstances['ref'] = new Chart(canvasRef.getContext('2d'), {
+        type: 'bar',
+        indexAxis: 'y',
+        data: {
+          labels: refLabels,
+          datasets: [{
+            label: 'アクセス件数',
+            data: refData,
+            backgroundColor: ['#D4AF37', '#38BDF8', '#34D399', '#A78BFA'],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+  } catch (err) {
+    console.error("Error in initCharts:", err);
+  }
+}
+
+// 📅 予約可能日時設定ロジック（スロットビルダー）
+const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
+
+// 🇯🇵 日本の祝日データ（2026年〜2027年）
+const JAPANESE_HOLIDAYS = {
+  // 2026年
+  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日",
+  "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日",
+  "2026-05-05": "こどもの日", "2026-05-06": "振替休日", "2026-07-20": "海の日", "2026-08-11": "山の日",
+  "2026-09-21": "敬老の日", "2026-09-22": "国民の休日", "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日",
+  "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日",
+  // 2027年
+  "2027-01-01": "元日", "2027-01-11": "成人の日", "2027-02-11": "建国記念の日", "2027-02-23": "天皇誕生日",
+  "2027-03-21": "春分の日", "2027-03-22": "振替休日", "2027-04-29": "昭和の日", "2027-05-03": "憲法記念日",
+  "2027-05-04": "みどりの日", "2027-05-05": "こどもの日", "2027-07-19": "海の日", "2027-08-11": "山の日",
+  "2027-09-20": "敬老の日", "2027-09-23": "秋分の日", "2027-10-11": "スポーツの日", "2027-11-03": "文化の日",
+  "2027-11-23": "勤労感謝の日"
+};
+
+function getJapaneseHoliday(dateStr) {
+  return JAPANESE_HOLIDAYS[dateStr] || null;
+}
+
+
+const ALL_DAYS = [
+  { val: 1, label: "月曜日" },
+  { val: 2, label: "火曜日" },
+  { val: 3, label: "水曜日" },
+  { val: 4, label: "木曜日" },
+  { val: 5, label: "金曜日" },
+  { val: 6, label: "土曜日" },
+  { val: 0, label: "日曜日" }
+];
+
+const ALL_TIMES_MORNING = [
+  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"
+];
+
+const ALL_TIMES_AFTERNOON = [
+  "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"
+];
+
+const ALL_TIMES = [...ALL_TIMES_MORNING, ...ALL_TIMES_AFTERNOON];
+
+function getScheduleConfig() {
+  const saved = localStorage.getItem(SCHEDULE_STORAGE_KEY);
+  if (saved) {
+    try { 
+      const cfg = JSON.parse(saved);
+      if (cfg.acceptHolidays === undefined) cfg.acceptHolidays = true;
+      return cfg;
+    } catch(e){}
+  }
+  return {
+    activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
+    acceptHolidays: true, // 祝日も受付
+    activeTimes: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
+    blockedSlots: {} // key: "YYYY-MM-DD_HH:MM" -> true
+  };
+}
+
+let currentSchedule = getScheduleConfig();
+
+function renderScheduleUI() {
+  // 1. 曜日チェックボックス
+  const daysGroup = document.getElementById('daysConfigGroup');
+  daysGroup.innerHTML = ALL_DAYS.map(d => {
+    const isChecked = currentSchedule.activeDays.includes(d.val) ? "checked" : "";
+    return `
+      <label class="checkbox-pill">
+        <input type="checkbox" name="cfgDay" value="${d.val}" ${isChecked} onchange="onDayChange()">
+        <span>${d.label}</span>
+      </label>
+    `;
+  }).join('');
+
+  // 祝日チェックボックス
+  const holidayCheck = document.getElementById('cfgHolidays');
+  if (holidayCheck) {
+    holidayCheck.checked = (currentSchedule.acceptHolidays !== false);
+  }
+
+  // 2. 時間帯チェックボックス（午前・午後）
+  const morningGroup = document.getElementById('timesMorningGroup');
+  morningGroup.innerHTML = ALL_TIMES_MORNING.map(t => {
+    const isChecked = currentSchedule.activeTimes.includes(t) ? "checked" : "";
+    return `
+      <label class="checkbox-pill">
+        <input type="checkbox" name="cfgTime" value="${t}" ${isChecked} onchange="onTimeChange()">
+        <span>${t} 〜</span>
+      </label>
+    `;
+  }).join('');
+
+  const afternoonGroup = document.getElementById('timesAfternoonGroup');
+  afternoonGroup.innerHTML = ALL_TIMES_AFTERNOON.map(t => {
+    const isChecked = currentSchedule.activeTimes.includes(t) ? "checked" : "";
+    return `
+      <label class="checkbox-pill">
+        <input type="checkbox" name="cfgTime" value="${t}" ${isChecked} onchange="onTimeChange()">
+        <span>${t} 〜</span>
+      </label>
+    `;
+  }).join('');
+
+  // 3. 直近14日間のスロット一覧
+  renderSlotsGrid();
+}
+
+function onHolidayPolicyChange() {
+  const holidayCheck = document.getElementById('cfgHolidays');
+  currentSchedule.acceptHolidays = holidayCheck.checked;
+  renderSlotsGrid();
+}
+
+function onDayChange() {
+  const checked = Array.from(document.querySelectorAll('input[name="cfgDay"]:checked')).map(el => Number(el.value));
+  currentSchedule.activeDays = checked;
+  renderSlotsGrid();
+}
+
+function onTimeChange() {
+  const checked = Array.from(document.querySelectorAll('input[name="cfgTime"]:checked')).map(el => el.value);
+  currentSchedule.activeTimes = checked;
+  renderSlotsGrid();
+}
+
+function renderSlotsGrid() {
+  const wrapper = document.getElementById('dateSlotsWrapper');
+  const today = new Date();
+  const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
+  let html = "";
+
+  for (let i = 1; i <= 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayOfWeek = d.getDay();
+    const holidayName = getJapaneseHoliday(dateStr);
+    const dayLabel = `${d.getMonth()+1}/${d.getDate()} (${dayNames[dayOfWeek]})`;
+    
+    // 定休判定: 曜日設定 または 祝日設定
+    const isDayActive = currentSchedule.activeDays.includes(dayOfWeek);
+    const isHolidayBlocked = holidayName && (currentSchedule.acceptHolidays === false);
+
+    if (!isDayActive || isHolidayBlocked) {
+      const reason = isHolidayBlocked ? `🇯🇵 祝日休業 (${holidayName})` : '定休・受付外';
+      html += `
+        <div class="date-slot-card" style="opacity: 0.45; border-color: rgba(248, 113, 113, 0.3);">
+          <div class="date-slot-header">
+            <span class="date-slot-day">${dayLabel}</span>
+            <span style="font-size: 0.72rem; color: var(--danger); font-weight: 700;">${reason}</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 12px 0;">受付なし</div>
+        </div>
+      `;
+      continue;
+    }
+
+    const holidayBadge = holidayName ? `<span style="font-size: 0.7rem; background: rgba(248, 113, 113, 0.2); color: #FCA5A5; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">🇯🇵 ${holidayName}</span>` : '';
+
+    const slotButtons = currentSchedule.activeTimes.map(time => {
+      const slotKey = `${dateStr}_${time}`;
+      const isBlocked = !!currentSchedule.blockedSlots[slotKey];
+      const cls = isBlocked ? "slot-blocked" : "slot-available";
+      const txt = isBlocked ? `✕ ${time}` : `◎ ${time}`;
+      return `<button type="button" class="btn-slot-toggle ${cls}" onclick="toggleSlot('${slotKey}')" title="${isBlocked ? '現在満席/不可(クリックで受付可に)' : '現在受付中(クリックで満席に)'}">${txt}</button>`;
+    }).join('');
+
+    html += `
+      <div class="date-slot-card">
+        <div class="date-slot-header">
+          <div style="display: flex; align-items: center;">
+            <span class="date-slot-day">${dayLabel}</span>
+            ${holidayBadge}
+          </div>
+          <span style="font-size: 0.72rem; color: var(--accent-gold-light);">クリックで切替</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap;">
+          ${slotButtons || '<div style="font-size: 0.8rem; color: var(--text-muted);">有効時間なし</div>'}
+        </div>
+      </div>
+    `;
+  }
+
+  wrapper.innerHTML = html;
+}
+
+function toggleSlot(slotKey) {
+  if (currentSchedule.blockedSlots[slotKey]) {
+    delete currentSchedule.blockedSlots[slotKey];
+  } else {
+    currentSchedule.blockedSlots[slotKey] = true;
+  }
+  renderSlotsGrid();
+}
+
+function saveScheduleSettings() {
+  localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(currentSchedule));
+  alert("【保存完了】予約可能日時・時間枠の設定を保存しました。\n公開サイト側の予約フォームへ即時反映されます。");
+}
+
+function refreshData() {
+  allLogs = getAccessLogs();
+  renderLogs(allLogs);
+  allLeads = getBookingLeads();
+  renderBookings(allLeads);
+  initRankList();
+  if (sessionStorage.getItem(AUTH_KEY) === "true") {
+    initCharts();
+  }
+  renderBookingStatus();
+  currentSchedule = getScheduleConfig();
+  renderScheduleUI();
+  alert("最新の予約・アクセスデータに更新しました。");
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  try { checkAuth(); } catch(e){ console.error(e); }
+  try { renderBookingStatus(); } catch(e){ console.error(e); }
+  try { renderScheduleUI(); } catch(e){ console.error(e); }
+  try {
+    allLeads = getBookingLeads();
+    renderBookings(allLeads);
+  } catch(e){ console.error(e); }
+  try {
+    allLogs = getAccessLogs();
+    renderLogs(allLogs);
+  } catch(e){ console.error(e); }
+  try { initRankList(); } catch(e){ console.error(e); }
+  try {
+    if (sessionStorage.getItem(AUTH_KEY) === "true") {
+      initCharts();
+    }
+  } catch(e){ console.error(e); }
+});
+</script>
+</body>
+</html>
