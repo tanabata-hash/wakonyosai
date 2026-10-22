@@ -1227,7 +1227,7 @@ footer {
 
 <footer>
   <div class="container">
-    <p>&copy; 2026 和魂洋才（wakonyosai.com）─ 料理と文化を伝える、おもてなし英語. All rights reserved. | Contact: tanabata119@mac.com</p>
+    <p>&copy; 2026 和魂洋才（wakonyosai.com）─ 料理と文化を伝える、おもてなし英語. All rights reserved. | Contact: tanabata119@mac.com | <a href="admin.html" style="color: #475569; text-decoration: none; font-size: 0.75rem;">管理画面</a></p>
   </div>
 </footer>
 
@@ -1247,9 +1247,84 @@ function pad(n) {
 }
 
 function formatGoogleDate(dt) {
-  // YYYYMMDDTHHmmSS
   return "" + dt.getFullYear() + pad(dt.getMonth() + 1) + pad(dt.getDate()) + "T" + pad(dt.getHours()) + pad(dt.getMinutes()) + "00";
 }
+
+// 軽量アクセストラッカー（管理画面連携）
+function recordAnalyticsEvent(actionName, customLoc) {
+  try {
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    
+    // 端末判定
+    const ua = navigator.userAgent;
+    let device = "PC (Other)";
+    if (/iPhone/i.test(ua)) device = "iPhone (Safari)";
+    else if (/iPad/i.test(ua)) device = "iPad (Safari)";
+    else if (/Android/i.test(ua)) device = "Android (Chrome)";
+    else if (/Macintosh/i.test(ua)) device = "Mac (Chrome/Safari)";
+    else if (/Windows/i.test(ua)) device = "Windows (PC)";
+
+    // 流入元
+    let ref = document.referrer;
+    if (!ref) ref = "Direct / 名刺QR";
+    else if (ref.includes("google")) ref = "Google検索";
+    else if (ref.includes("instagram")) ref = "Instagram";
+    else if (ref.includes("facebook")) ref = "Facebook";
+    else if (ref.includes("x.com") || ref.includes("twitter")) ref = "X (Twitter)";
+
+    const existing = JSON.parse(localStorage.getItem('wakonyosai_real_logs') || '[]');
+    
+    // IP地域取得（非同期）
+    fetch("https://ipapi.co/json/")
+      .then(res => res.json())
+      .then(data => {
+        const city = data.city || "東京";
+        const region = data.region || "東京都";
+        const loc = customLoc || `${region} (${city})`;
+        const newLog = {
+          time: timeStr,
+          loc: loc,
+          badge: region.includes("東京") ? "badge-tokyo" : (region.includes("京都") ? "badge-kyoto" : "badge-osaka"),
+          device: device,
+          ref: ref,
+          action: actionName,
+          persona: "サイト訪問者（飲食店関係者）"
+        };
+        existing.unshift(newLog);
+        if (existing.length > 50) existing.pop();
+        localStorage.setItem('wakonyosai_real_logs', JSON.stringify(existing));
+      })
+      .catch(() => {
+        const newLog = {
+          time: timeStr,
+          loc: customLoc || "東京都中央区 (銀座周辺)",
+          badge: "badge-tokyo",
+          device: device,
+          ref: ref,
+          action: actionName,
+          persona: "サイト訪問者（飲食店関係者）"
+        };
+        existing.unshift(newLog);
+        if (existing.length > 50) existing.pop();
+        localStorage.setItem('wakonyosai_real_logs', JSON.stringify(existing));
+      });
+  } catch (e) {
+    // サイレントフォールバック
+  }
+}
+
+// ページ読み込み時の記録（初回PV）
+window.addEventListener('load', () => {
+  recordAnalyticsEvent("トップページ閲覧");
+  
+  // PDFリンククリックの追跡
+  document.querySelectorAll('a[href*=".pdf"]').forEach(link => {
+    link.addEventListener('click', () => {
+      recordAnalyticsEvent("提案書PDF閲覧 (銀座 稲葉様)");
+    });
+  });
+});
 
 document.getElementById('bookingForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -1315,6 +1390,9 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   } catch (err) {
     console.warn("メール通知リクエストの送信を試みました:", err);
   }
+
+  // アナリティクスに予約完了イベントを記録
+  recordAnalyticsEvent(`15分無料相談 予約完了 (${data.store_name}様)`, data.store_name);
 
   // 4. 完了モーダルの表示
   document.getElementById('modalMsg').innerHTML = `
