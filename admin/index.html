@@ -603,6 +603,16 @@ body {
   font-size: 0.78rem;
 }
 
+.badge-plan-inquiry {
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #C084FC;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
 .badge-tokyo { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
 .badge-kyoto { background: rgba(212, 175, 55, 0.15); color: #F3E5AB; }
 .badge-osaka { background: rgba(167, 139, 250, 0.15); color: #C4B5FD; }
@@ -1345,8 +1355,9 @@ function renderBookings(leads) {
 
   tbody.innerHTML = leads.map(l => {
     const isSprint = l.planType && l.planType.includes("スプリント");
-    const badgeClass = isSprint ? "badge-plan-sprint" : "badge-plan-free";
-    const icon = isSprint ? "🔥" : "☕";
+    const isInquiry = l.planType && (l.planType.includes("質問") || l.planType.includes("確認"));
+    const badgeClass = isSprint ? "badge-plan-sprint" : (isInquiry ? "badge-plan-inquiry" : "badge-plan-free");
+    const icon = isSprint ? "🔥" : (isInquiry ? "💬" : "☕");
 
     return `
       <tr>
@@ -1359,7 +1370,10 @@ function renderBookings(leads) {
           <div>☎ ${l.phone || '-'}</div>
         </td>
         <td class="outfit" style="color: var(--accent-gold-light); font-weight: 600;">${l.dateTime || '-'}</td>
-        <td style="font-size: 0.8rem;">${l.format || '-'}</td>
+        <td style="font-size: 0.8rem;">
+          <div>${l.format || '-'}</div>
+          ${l.message ? `<div style="color: #CBD5E1; font-size: 0.75rem; margin-top: 4px; padding: 4px 6px; background: rgba(255,255,255,0.05); border-radius: 4px; border-left: 2px solid #C084FC; white-space: normal; line-height: 1.35; max-width: 240px;">${l.message}</div>` : ''}
+        </td>
         <td><span class="status-badge-lead">${l.status || '新規受付'}</span></td>
       </tr>
     `;

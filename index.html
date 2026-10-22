@@ -691,6 +691,55 @@ header {
   background: rgba(255, 255, 255, 0.18);
 }
 
+/* 予約 / 事前質問 タブ切り替え */
+.form-nav-tabs {
+  display: flex;
+  max-width: 680px;
+  margin: 0 auto 28px;
+  background: rgba(18, 24, 36, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 6px;
+  gap: 8px;
+}
+.form-nav-tab {
+  flex: 1;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.form-nav-tab:hover {
+  color: #FFF;
+  background: rgba(255, 255, 255, 0.05);
+}
+.form-nav-tab.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.08) 100%);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-light);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+.tab-pane {
+  display: none;
+}
+.tab-pane.active {
+  display: block;
+  animation: fadeInTab 0.3s ease;
+}
+@keyframes fadeInTab {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 footer {
   padding: 36px 0;
   text-align: center;
@@ -1120,21 +1169,31 @@ footer {
   </div>
 </section>
 
-<!-- Booking Form Section with Calendar & Email Automation -->
+<!-- Booking & Inquiry Form Section with Calendar & Email Automation -->
 <section class="booking-section" id="booking">
   <div class="container">
     <div class="section-title-wrap">
-      <span class="section-label">RESERVATION</span>
+      <span class="section-label">CONTACT & RESERVATION</span>
       <h2 class="section-title mincho">
-        <span class="phrase">お打ち合わせ・ご相談</span>
-        <span class="phrase">予約</span>
+        <span class="phrase">お打ち合わせ予約 ＆</span>
+        <span class="phrase">事前のご質問</span>
       </h2>
       <p style="color: var(--text-muted); margin-top: 12px;">
-        <span class="phrase">稲葉様の実物サンプル画面をお見せしながら</span>
-        <span class="phrase">貴店のお困りごとに合わせた導入イメージをご提案します</span><br class="pc-br">
-        <span class="phrase">ご予約完了後、<strong>カレンダーへの自動登録</strong>および</span>
-        <span class="phrase"><strong>確認メール</strong>が自動送信されます</span>
+        <span class="phrase">日程を選んですぐに相談・予約されたい方はもちろん、</span>
+        <span class="phrase">「予約前にまず確認したいこと」もお気軽にご質問いただけます</span>
       </p>
+    </div>
+
+    <!-- フォーム切替タブ -->
+    <div class="form-nav-tabs">
+      <button type="button" class="form-nav-tab active" id="tabBtnBooking" onclick="switchFormTab('booking')">
+        <span>📅</span>
+        <span>日時を選んで予約・相談</span>
+      </button>
+      <button type="button" class="form-nav-tab" id="tabBtnInquiry" onclick="switchFormTab('inquiry')">
+        <span>💬</span>
+        <span>予約の前にまず質問する</span>
+      </button>
     </div>
 
     <!-- 受付一時停止中の案内バナー（アドミン連動） -->
@@ -1142,103 +1201,149 @@ footer {
       <h3 style="color: #F87171; font-size: 1.15rem; margin-bottom: 8px;" class="mincho">【現在、今月分の枠は満席のため受付を一時停止しております】</h3>
       <p style="font-size: 0.9rem; line-height: 1.7;">
         大変ご好評につき、今月の現場指導枠・スプリント枠は満席となりました。<br>
-        次回募集時の優先案内をご希望の場合は、以下のフォームよりメッセージをお送りいただけます。
+        次回募集時の優先案内や事前のご質問は、「予約の前にまず質問する」タブよりいつでも送信いただけます。
       </p>
     </div>
 
     <div class="booking-box">
-      <form id="bookingForm">
-        <!-- 予約種別の選択 -->
-        <div class="form-group" style="margin-bottom: 24px; background: rgba(18, 24, 36, 0.6); padding: 16px 20px; border-radius: 8px; border: 1px solid var(--border-gold);">
-          <label class="form-label" style="color: var(--accent-gold-light); font-weight: 700;">ご希望の予約種別 <span>*</span></label>
-          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
-              <input type="radio" name="plan_type" id="planFree" value="15分無料オンライン相談" checked style="accent-color: var(--accent-gold);">
-              <span>15分無料オンライン相談（課題相談・導入イメージ共有）</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
-              <input type="radio" name="plan_type" id="planSprint" value="おもてなし英語導入スプリント申込" style="accent-color: var(--accent-gold);">
-              <span>おもてなし英語導入スプリント申込（最短2週間・40万円プラン）</span>
-            </label>
+      <!-- タブ1: 予約フォーム -->
+      <div id="paneBooking" class="tab-pane active">
+        <form id="bookingForm">
+          <!-- 予約種別の選択 -->
+          <div class="form-group" style="margin-bottom: 24px; background: rgba(18, 24, 36, 0.6); padding: 16px 20px; border-radius: 8px; border: 1px solid var(--border-gold);">
+            <label class="form-label" style="color: var(--accent-gold-light); font-weight: 700;">ご希望の予約種別 <span>*</span></label>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
+                <input type="radio" name="plan_type" id="planFree" value="15分無料オンライン相談" checked style="accent-color: var(--accent-gold);">
+                <span>15分無料オンライン相談（課題相談・導入イメージ共有）</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
+                <input type="radio" name="plan_type" id="planSprint" value="おもてなし英語導入スプリント申込" style="accent-color: var(--accent-gold);">
+                <span>おもてなし英語導入スプリント申込（最短2週間・40万円プラン）</span>
+              </label>
+            </div>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">店舗名 / 宿名 <span>*</span></label>
-            <input type="text" name="store_name" class="form-control" placeholder="例：銀座 〇〇、京都 〇〇" required>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">店舗名 / 宿名 <span>*</span></label>
+              <input type="text" name="store_name" class="form-control" placeholder="例：銀座 〇〇、京都 〇〇" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ご担当者様 お名前 <span>*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="例：山田 太郎（店長 / 料理長）" required>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">ご担当者様 お名前 <span>*</span></label>
-            <input type="text" name="name" class="form-control" placeholder="例：山田 太郎（店長 / 料理長）" required>
-          </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">メールアドレス <span>*</span></label>
-            <input type="email" name="email" class="form-control" placeholder="example@restaurant.com" required>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">メールアドレス <span>*</span></label>
+              <input type="email" name="email" class="form-control" placeholder="example@restaurant.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">お電話番号 <span>*</span></label>
+              <input type="tel" name="phone" class="form-control" placeholder="03-XXXX-XXXX" required>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">お電話番号 <span>*</span></label>
-            <input type="tel" name="phone" class="form-control" placeholder="03-XXXX-XXXX" required>
-          </div>
-        </div>
 
-        <!-- ⚡ 直近の空き枠クイック選択 -->
-        <div style="margin-bottom: 22px; background: rgba(18, 24, 36, 0.4); padding: 14px 18px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
-          <div style="font-size: 0.82rem; color: var(--accent-gold-light); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <span>⚡</span>
-            <span>現在ご案内可能な直近の空き枠（タップで自動入力）</span>
-          </div>
-          <div id="quickSlotsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <!-- JS動的生成 -->
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">ご希望日 <span>*</span></label>
-            <input type="date" name="date" id="bookingDate" class="form-control" required onchange="onBookingDateChange()">
-            <div id="dateNotice" style="font-size: 0.78rem; color: var(--accent-gold); margin-top: 5px;"></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">ご希望時間帯（仕込み時間等） <span>*</span></label>
-            <select name="time" id="bookingTime" class="form-control" required>
+          <!-- ⚡ 直近の空き枠クイック選択 -->
+          <div style="margin-bottom: 22px; background: rgba(18, 24, 36, 0.4); padding: 14px 18px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div style="font-size: 0.82rem; color: var(--accent-gold-light); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>⚡</span>
+              <span>現在ご案内可能な直近の空き枠（タップで自動入力）</span>
+            </div>
+            <div id="quickSlotsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;">
               <!-- JS動的生成 -->
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ご希望日 <span>*</span></label>
+              <input type="date" name="date" id="bookingDate" class="form-control" required onchange="onBookingDateChange()">
+              <div id="dateNotice" style="font-size: 0.78rem; color: var(--accent-gold); margin-top: 5px;"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ご希望時間帯（仕込み時間等） <span>*</span></label>
+              <select name="time" id="bookingTime" class="form-control" required>
+                <!-- JS動的生成 -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ご希望の相談形式 <span>*</span></label>
+            <select name="format" class="form-control">
+              <option value="オンライン（Zoom）">オンライン（Zoom） - 全国・都内対応</option>
+              <option value="対面ご訪問（銀座・麻布・六本木周辺限定）">対面ご訪問（銀座・麻布・六本木周辺の店舗様限定）</option>
             </select>
           </div>
+
+          <div class="form-group">
+            <label class="form-label">現在のお困りごと・メニュー状況（任意）</label>
+            <textarea name="message" class="form-control" rows="3" placeholder="例：来月から外国人客向けに新しいコースを始める、スタッフの英語説明を統一したい、など"></textarea>
+          </div>
+
+          <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%; margin-top: 10px;">
+            相談日時を確定して予約する
+          </button>
+        </form>
+      </div>
+
+      <!-- タブ2: 事前ご質問・相談フォーム -->
+      <div id="paneInquiry" class="tab-pane">
+        <div style="background: rgba(18, 24, 36, 0.5); padding: 16px 20px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 24px;">
+          <div style="color: var(--accent-gold-light); font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">💬 ご予約前の事前ご質問・確認</div>
+          <div style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;">
+            「日程を押さえる前に確認しておきたいこと」「自店の業態や英語レベルでも対応可能か」など、気になる点を何でもお気軽にお尋ねください。担当よりメールにて迅速にご案内いたします。
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">ご希望の相談形式 <span>*</span></label>
-          <select name="format" class="form-control">
-            <option value="オンライン（Zoom）">オンライン（Zoom） - 全国・都内対応</option>
-            <option value="対面ご訪問（銀座・麻布・六本木周辺限定）">対面ご訪問（銀座・麻布・六本木周辺の店舗様限定）</option>
-          </select>
-        </div>
+        <form id="inquiryForm" onsubmit="handleInquirySubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ご担当者様 お名前 <span>*</span></label>
+              <input type="text" id="inqName" name="inq_name" class="form-control" placeholder="例：山田 太郎" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">店舗名 / 宿名（任意）</label>
+              <input type="text" id="inqStore" name="inq_store" class="form-control" placeholder="例：日本料理 〇〇">
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">現在のお困りごと・メニュー状況（任意）</label>
-          <textarea name="message" class="form-control" rows="3" placeholder="例：来月から外国人客向けに新しいコースを始める、スタッフの英語説明を統一したい、など"></textarea>
-        </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ご回答先メールアドレス <span>*</span></label>
+              <input type="email" id="inqEmail" name="inq_email" class="form-control" placeholder="example@restaurant.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">お電話番号（任意）</label>
+              <input type="tel" id="inqPhone" name="inq_phone" class="form-control" placeholder="03-XXXX-XXXX">
+            </div>
+          </div>
 
-        <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%; margin-top: 10px;">
-          相談日時を確定して予約する
-        </button>
-      </form>
+          <div class="form-group">
+            <label class="form-label">ご質問・事前確認したい内容 <span>*</span></label>
+            <textarea id="inqMessage" name="inq_message" class="form-control" rows="5" placeholder="例：&#10;・小さな個人店（カウンター8席）でも導入できますか？&#10;・ホールスタッフの英語が中学レベルなのですが、習得できますか？&#10;・費用や支払い方法、導入までのスケジュールを詳しく知りたい" required></textarea>
+          </div>
+
+          <button type="submit" id="inqSubmitBtn" class="btn-primary" style="width: 100%; margin-top: 10px;">
+            質問・事前確認を送信する
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Modal Confirmation -->
+<!-- Modal Confirmation (予約用) -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box">
     <div class="modal-icon">✓</div>
     <h3 class="mincho">ご予約が完了いたしました</h3>
     <p id="modalMsg">
-      ご登録いただいた日時にてカレンダーを確保いたしました<br>
-      <strong>tanabata119@mac.com</strong> 宛てに通知メールを送信いたしました
+      ご登録いただいた日時にてカレンダーを確保いたしました。<br>
+      担当よりご登録メールアドレス宛てに確認メールをお送りいたします。
     </p>
 
     <div class="modal-actions">
@@ -1255,9 +1360,27 @@ footer {
   </div>
 </div>
 
+<!-- Modal Confirmation (ご質問用) -->
+<div class="modal-overlay" id="inquiryModal">
+  <div class="modal-box">
+    <div class="modal-icon">💬</div>
+    <h3 class="mincho">ご質問を受け付けました</h3>
+    <p id="inquiryModalMsg">
+      お問い合わせいただき誠にありがとうございます。<br>
+      内容を確認のうえ、担当者より原則24時間以内にご回答メールをお送りいたします。
+    </p>
+    <div class="modal-actions">
+      <button onclick="closeInquiryModal()" class="btn-primary" style="width: 100%;">
+        閉じる
+      </button>
+    </div>
+  </div>
+</div>
+
+
 <footer>
   <div class="container">
-    <p>&copy; 2026 和魂洋才（wakonyosai.com）─ 料理と文化を伝える、おもてなし英語. All rights reserved. | Contact: tanabata119@mac.com | <a href="admin.html" style="color: #475569; text-decoration: none; font-size: 0.75rem;">管理画面</a></p>
+    <p>&copy; 2026 和魂洋才（wakonyosai.com）─ 料理と文化を伝える、おもてなし英語. All rights reserved. | <a href="admin.html" style="color: #475569; text-decoration: none; font-size: 0.75rem;">管理画面</a></p>
   </div>
 </footer>
 
@@ -1662,6 +1785,101 @@ document.getElementById('downloadIcsBtn').addEventListener('click', function() {
   link.click();
   document.body.removeChild(link);
 });
+
+// 🔄 予約 / 事前質問 タブ切り替え処理
+function switchFormTab(tab) {
+  const btnBooking = document.getElementById('tabBtnBooking');
+  const btnInquiry = document.getElementById('tabBtnInquiry');
+  const paneBooking = document.getElementById('paneBooking');
+  const paneInquiry = document.getElementById('paneInquiry');
+
+  if (tab === 'inquiry') {
+    btnBooking.classList.remove('active');
+    btnInquiry.classList.add('active');
+    paneBooking.classList.remove('active');
+    paneInquiry.classList.add('active');
+    recordAnalyticsEvent("事前質問タブを開いた", "問い合わせ検討");
+  } else {
+    btnInquiry.classList.remove('active');
+    btnBooking.classList.add('active');
+    paneInquiry.classList.remove('active');
+    paneBooking.classList.add('active');
+  }
+}
+
+// 💬 事前ご質問・相談フォーム送信処理
+async function handleInquirySubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const submitBtn = document.getElementById('inqSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerText = "送信中...";
+
+  const name = document.getElementById('inqName').value.trim();
+  const store = document.getElementById('inqStore').value.trim() || "店舗名未記入";
+  const email = document.getElementById('inqEmail').value.trim();
+  const phone = document.getElementById('inqPhone').value.trim() || "-";
+  const message = document.getElementById('inqMessage').value.trim();
+
+  // メール通知送信
+  try {
+    await fetch("https://formsubmit.co/ajax/tanabata119@mac.com", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: `【和魂洋才】事前ご質問・お問い合わせ (${store} ${name}様)`,
+        "種別": "事前ご質問・確認",
+        "店舗・宿名": store,
+        "お名前": name,
+        "メールアドレス": email,
+        "お電話番号": phone,
+        "ご質問・事前確認内容": message
+      })
+    });
+  } catch (err) {
+    console.warn("メール通知リクエスト送信試行:", err);
+  }
+
+  // 管理画面（顧客台帳）へ連動保存
+  try {
+    const existingLeads = JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
+    const newInquiry = {
+      date: new Date().toLocaleString('ja-JP'),
+      planType: "💬 事前ご質問・確認",
+      storeName: store,
+      name: name,
+      email: email,
+      phone: phone,
+      dateTime: "事前質問（日程未定）",
+      format: "メールにて回答希望",
+      message: message,
+      status: "要回答"
+    };
+    existingLeads.unshift(newInquiry);
+    localStorage.setItem('wakonyosai_booking_leads', JSON.stringify(existingLeads));
+  } catch(e) {}
+
+  // アナリティクスイベント記録
+  recordAnalyticsEvent(`事前質問送信: ${store} (${name}様)`, store);
+
+  // 完了モーダルの表示
+  document.getElementById('inquiryModalMsg').innerHTML = `
+    <strong>${name} 様</strong>、ご質問・事前確認をお送りいただき誠にありがとうございます。<br><br>
+    内容を確認のうえ、ご指定のメールアドレス（<strong>${email}</strong>）宛てに担当者より原則24時間以内にご回答メールをお送りいたします。
+  `;
+  document.getElementById('inquiryModal').style.display = 'flex';
+
+  // フォームリセット
+  document.getElementById('inquiryForm').reset();
+  submitBtn.disabled = false;
+  submitBtn.innerText = "質問・事前確認を送信する";
+}
+
+function closeInquiryModal() {
+  document.getElementById('inquiryModal').style.display = 'none';
+}
 </script>
 
 </body>
