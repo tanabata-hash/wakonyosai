@@ -1355,17 +1355,42 @@ function selectPlan(plan) {
   }
 }
 
+// 🇯🇵 日本の祝日データ（2026年〜2027年）
+const JAPANESE_HOLIDAYS = {
+  // 2026年
+  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日",
+  "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日",
+  "2026-05-05": "こどもの日", "2026-05-06": "振替休日", "2026-07-20": "海の日", "2026-08-11": "山の日",
+  "2026-09-21": "敬老の日", "2026-09-22": "国民の休日", "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日",
+  "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日",
+  // 2027年
+  "2027-01-01": "元日", "2027-01-11": "成人の日", "2027-02-11": "建国記念の日", "2027-02-23": "天皇誕生日",
+  "2027-03-21": "春分の日", "2027-03-22": "振替休日", "2027-04-29": "昭和の日", "2027-05-03": "憲法記念日",
+  "2027-05-04": "みどりの日", "2027-05-05": "こどもの日", "2027-07-19": "海の日", "2027-08-11": "山の日",
+  "2027-09-20": "敬老の日", "2027-09-23": "秋分の日", "2027-10-11": "スポーツの日", "2027-11-03": "文化の日",
+  "2027-11-23": "勤労感謝の日"
+};
+
+function getJapaneseHoliday(dateStr) {
+  return JAPANESE_HOLIDAYS[dateStr] || null;
+}
+
 // 📅 予約可能日時設定（アドミン連動）
 const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
 
 function getScheduleConfig() {
   const saved = localStorage.getItem(SCHEDULE_STORAGE_KEY);
   if (saved) {
-    try { return JSON.parse(saved); } catch(e){}
+    try { 
+      const cfg = JSON.parse(saved);
+      if (cfg.acceptHolidays === undefined) cfg.acceptHolidays = true;
+      return cfg;
+    } catch(e){}
   }
   return {
     activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
-    activeTimes: ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
+    acceptHolidays: true, // 祝日も受付
+    activeTimes: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
     blockedSlots: {}
   };
 }
@@ -1380,18 +1405,32 @@ function onBookingDateChange() {
   const [y, m, d] = dateInput.value.split('-').map(Number);
   const selectedDate = new Date(y, m - 1, d);
   const dayOfWeek = selectedDate.getDay();
+  const dateStr = dateInput.value;
+  const holidayName = getJapaneseHoliday(dateStr);
 
-  // 曜日チェック
+  // 曜日・祝日チェック
   if (!cfg.activeDays.includes(dayOfWeek)) {
     notice.innerText = "⚠️ 選択された曜日は受付時間外（定休日）です。別の日程をご選択ください。";
+    notice.style.color = "var(--danger)";
     timeSelect.innerHTML = '<option value="">受付時間外の曜日です</option>';
     return;
+  }
+
+  if (holidayName && cfg.acceptHolidays === false) {
+    notice.innerText = `⚠️ 選択された日は祝日休業（${holidayName}）です。別の日程をご選択ください。`;
+    notice.style.color = "var(--danger)";
+    timeSelect.innerHTML = '<option value="">祝日休業日です</option>';
+    return;
+  }
+
+  if (holidayName) {
+    notice.innerText = `🇯🇵 本日は祝日（${holidayName}）ですが通常通りご予約いただけます。`;
+    notice.style.color = "var(--accent-gold-light)";
   } else {
     notice.innerText = "";
   }
 
   // 時間帯生成
-  const dateStr = dateInput.value;
   let optionsHtml = "";
   let availableCount = 0;
 
@@ -1402,13 +1441,15 @@ function onBookingDateChange() {
       optionsHtml += `<option value="${time}" disabled style="color: #64748B;">${time} 〜（満席・不可）</option>`;
     } else {
       availableCount++;
-      const isRecommend = (time === "15:00" || time === "15:30") ? "（推奨）" : "";
-      optionsHtml += `<option value="${time}">${time} 〜 ${isRecommend}</option>`;
+      const isMorning = time.startsWith("09") || time.startsWith("10") || time.startsWith("11");
+      const tag = isMorning ? "【午前】" : ((time === "15:00" || time === "15:30") ? "【仕込み時推奨】" : "");
+      optionsHtml += `<option value="${time}">${time} 〜 ${tag}</option>`;
     }
   });
 
   if (availableCount === 0) {
     notice.innerText = "⚠️ この日は全ての時間帯が満席となっております。";
+    notice.style.color = "var(--danger)";
     timeSelect.innerHTML = '<option value="">この日は満席です</option>';
   } else {
     timeSelect.innerHTML = optionsHtml;
@@ -1430,23 +1471,26 @@ function initQuickSlots() {
   const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
   let slots = [];
 
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 10; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const dayOfWeek = d.getDay();
-    if (!cfg.activeDays.includes(dayOfWeek)) continue;
-
     const dateStr = d.toISOString().split('T')[0];
-    const monthDay = `${d.getMonth()+1}/${d.getDate()}(${dayNames[dayOfWeek]})`;
+    const holidayName = getJapaneseHoliday(dateStr);
+
+    if (!cfg.activeDays.includes(dayOfWeek)) continue;
+    if (holidayName && cfg.acceptHolidays === false) continue;
+
+    const monthDay = `${d.getMonth()+1}/${d.getDate()}(${dayNames[dayOfWeek]})${holidayName ? '🇯🇵' : ''}`;
 
     for (const time of cfg.activeTimes) {
       const slotKey = `${dateStr}_${time}`;
       if (!cfg.blockedSlots[slotKey]) {
         slots.push({ dateStr, time, label: `${monthDay} ${time}〜` });
-        if (slots.length >= 6) break;
+        if (slots.length >= 8) break;
       }
     }
-    if (slots.length >= 6) break;
+    if (slots.length >= 8) break;
   }
 
   if (slots.length === 0) {

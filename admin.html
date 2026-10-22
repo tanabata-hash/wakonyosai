@@ -805,19 +805,30 @@ body {
       </button>
     </div>
 
-    <!-- 1. 受付可能な曜日設定 -->
+    <!-- 1. 受付可能な曜日 & 祝日設定 -->
     <div class="schedule-config-section">
-      <div class="config-title">① 受付可能な曜日</div>
-      <div class="checkbox-pill-group" id="daysConfigGroup">
+      <div class="config-title">① 受付可能な曜日 & 国民の祝日設定</div>
+      <div class="checkbox-pill-group" id="daysConfigGroup" style="margin-bottom: 12px;">
         <!-- JS動的生成: 月〜日 -->
+      </div>
+      <div class="checkbox-pill-group">
+        <label class="checkbox-pill" style="border-color: rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1);">
+          <input type="checkbox" id="cfgHolidays" onchange="onHolidayPolicyChange()">
+          <span>🇯🇵 国民の祝日も予約を受け付ける（OFFの場合は祝日を自動休業・不可に設定）</span>
+        </label>
       </div>
     </div>
 
-    <!-- 2. 基本の受付時間帯 -->
+    <!-- 2. 基本の受付時間帯（午前9時〜夕方18時） -->
     <div class="schedule-config-section">
-      <div class="config-title">② 基本の受付時間帯（仕込み時間枠）</div>
-      <div class="checkbox-pill-group" id="timesConfigGroup">
-        <!-- JS動的生成: 14:00〜17:00 -->
+      <div class="config-title">② 基本の受付時間帯（午前9:00〜18:00対応）</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">【午前枠】</div>
+      <div class="checkbox-pill-group" id="timesMorningGroup" style="margin-bottom: 12px;">
+        <!-- JS動的生成: 09:00〜12:00 -->
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">【午後・仕込み枠】</div>
+      <div class="checkbox-pill-group" id="timesAfternoonGroup">
+        <!-- JS動的生成: 13:00〜18:00 -->
       </div>
     </div>
 
@@ -1412,6 +1423,29 @@ function initCharts() {
 // 📅 予約可能日時設定ロジック（スロットビルダー）
 const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
 
+// 🇯🇵 日本の祝日データ（2026年〜2027年）
+const JAPANESE_HOLIDAYS = {
+  // 2026年
+  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日",
+  "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日",
+  "2026-05-05": "こどもの日", "2026-05-06": "振替休日", "2026-07-20": "海の日", "2026-08-11": "山の日",
+  "2026-09-21": "敬老の日", "2026-09-22": "国民の休日", "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日",
+  "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日",
+  // 2027年
+  "2027-01-01": "元日", "2027-01-11": "成人の日", "2027-02-11": "建国記念の日", "2027-02-23": "天皇誕生日",
+  "2027-03-21": "春分の日", "2027-03-22": "振替休日", "2027-04-29": "昭和の日", "2027-05-03": "憲法記念日",
+  "2027-05-04": "みどりの日", "2027-05-05": "こどもの日", "2027-07-19": "海の日", "2027-08-11": "山の日",
+  "2027-09-20": "敬老の日", "2027-09-23": "秋分の日", "2027-10-11": "スポーツの日", "2027-11-03": "文化の日",
+  "2027-11-23": "勤労感謝の日"
+};
+
+function getJapaneseHoliday(dateStr) {
+  return JAPANESE_HOLIDAYS[dateStr] || null;
+}
+
+// 📅 予約可能日時設定ロジック（スロットビルダー）
+const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
+
 const ALL_DAYS = [
   { val: 1, label: "月曜日" },
   { val: 2, label: "火曜日" },
@@ -1422,18 +1456,29 @@ const ALL_DAYS = [
   { val: 0, label: "日曜日" }
 ];
 
-const ALL_TIMES = [
-  "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"
+const ALL_TIMES_MORNING = [
+  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"
 ];
+
+const ALL_TIMES_AFTERNOON = [
+  "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"
+];
+
+const ALL_TIMES = [...ALL_TIMES_MORNING, ...ALL_TIMES_AFTERNOON];
 
 function getScheduleConfig() {
   const saved = localStorage.getItem(SCHEDULE_STORAGE_KEY);
   if (saved) {
-    try { return JSON.parse(saved); } catch(e){}
+    try { 
+      const cfg = JSON.parse(saved);
+      if (cfg.acceptHolidays === undefined) cfg.acceptHolidays = true;
+      return cfg;
+    } catch(e){}
   }
   return {
     activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
-    activeTimes: ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
+    acceptHolidays: true, // 祝日も受付
+    activeTimes: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
     blockedSlots: {} // key: "YYYY-MM-DD_HH:MM" -> true
   };
 }
@@ -1453,9 +1498,26 @@ function renderScheduleUI() {
     `;
   }).join('');
 
-  // 2. 時間帯チェックボックス
-  const timesGroup = document.getElementById('timesConfigGroup');
-  timesGroup.innerHTML = ALL_TIMES.map(t => {
+  // 祝日チェックボックス
+  const holidayCheck = document.getElementById('cfgHolidays');
+  if (holidayCheck) {
+    holidayCheck.checked = (currentSchedule.acceptHolidays !== false);
+  }
+
+  // 2. 時間帯チェックボックス（午前・午後）
+  const morningGroup = document.getElementById('timesMorningGroup');
+  morningGroup.innerHTML = ALL_TIMES_MORNING.map(t => {
+    const isChecked = currentSchedule.activeTimes.includes(t) ? "checked" : "";
+    return `
+      <label class="checkbox-pill">
+        <input type="checkbox" name="cfgTime" value="${t}" ${isChecked} onchange="onTimeChange()">
+        <span>${t} 〜</span>
+      </label>
+    `;
+  }).join('');
+
+  const afternoonGroup = document.getElementById('timesAfternoonGroup');
+  afternoonGroup.innerHTML = ALL_TIMES_AFTERNOON.map(t => {
     const isChecked = currentSchedule.activeTimes.includes(t) ? "checked" : "";
     return `
       <label class="checkbox-pill">
@@ -1466,6 +1528,12 @@ function renderScheduleUI() {
   }).join('');
 
   // 3. 直近14日間のスロット一覧
+  renderSlotsGrid();
+}
+
+function onHolidayPolicyChange() {
+  const holidayCheck = document.getElementById('cfgHolidays');
+  currentSchedule.acceptHolidays = holidayCheck.checked;
   renderSlotsGrid();
 }
 
@@ -1492,21 +1560,28 @@ function renderSlotsGrid() {
     d.setDate(today.getDate() + i);
     const dateStr = d.toISOString().split('T')[0];
     const dayOfWeek = d.getDay();
+    const holidayName = getJapaneseHoliday(dateStr);
     const dayLabel = `${d.getMonth()+1}/${d.getDate()} (${dayNames[dayOfWeek]})`;
+    
+    // 定休判定: 曜日設定 または 祝日設定
     const isDayActive = currentSchedule.activeDays.includes(dayOfWeek);
+    const isHolidayBlocked = holidayName && (currentSchedule.acceptHolidays === false);
 
-    if (!isDayActive) {
+    if (!isDayActive || isHolidayBlocked) {
+      const reason = isHolidayBlocked ? `🇯🇵 祝日休業 (${holidayName})` : '定休・受付外';
       html += `
-        <div class="date-slot-card" style="opacity: 0.45;">
+        <div class="date-slot-card" style="opacity: 0.45; border-color: rgba(248, 113, 113, 0.3);">
           <div class="date-slot-header">
             <span class="date-slot-day">${dayLabel}</span>
-            <span style="font-size: 0.72rem; color: var(--danger); font-weight: 700;">定休・受付外</span>
+            <span style="font-size: 0.72rem; color: var(--danger); font-weight: 700;">${reason}</span>
           </div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 12px 0;">受付なし（曜日設定OFF）</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 12px 0;">受付なし</div>
         </div>
       `;
       continue;
     }
+
+    const holidayBadge = holidayName ? `<span style="font-size: 0.7rem; background: rgba(248, 113, 113, 0.2); color: #FCA5A5; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">🇯🇵 ${holidayName}</span>` : '';
 
     const slotButtons = currentSchedule.activeTimes.map(time => {
       const slotKey = `${dateStr}_${time}`;
@@ -1519,7 +1594,10 @@ function renderSlotsGrid() {
     html += `
       <div class="date-slot-card">
         <div class="date-slot-header">
-          <span class="date-slot-day">${dayLabel}</span>
+          <div style="display: flex; align-items: center;">
+            <span class="date-slot-day">${dayLabel}</span>
+            ${holidayBadge}
+          </div>
           <span style="font-size: 0.72rem; color: var(--accent-gold-light);">クリックで切替</span>
         </div>
         <div style="display: flex; flex-wrap: wrap;">
