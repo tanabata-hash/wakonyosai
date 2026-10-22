@@ -82,25 +82,45 @@ body {
   margin-bottom: 28px;
 }
 
+.pin-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
 .pin-input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 14px 44px 14px 16px;
   background: #0B101B;
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
   color: #FFF;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   text-align: center;
   letter-spacing: 0.25em;
-  margin-bottom: 20px;
   outline: none;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .pin-input:focus {
   border-color: var(--accent-gold);
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
 }
+
+.pin-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+}
+.pin-toggle-btn:hover { color: #FFF; }
 
 .btn-login {
   width: 100%;
@@ -113,10 +133,44 @@ body {
   border-radius: 8px;
   cursor: pointer;
   transition: filter 0.2s;
+  margin-bottom: 12px;
 }
 
 .btn-login:hover { filter: brightness(1.15); }
-.login-hint { margin-top: 16px; font-size: 0.78rem; color: #64748B; }
+
+.btn-quick-login {
+  width: 100%;
+  padding: 11px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-light);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-quick-login:hover {
+  background: rgba(212, 175, 55, 0.25);
+  color: #FFF;
+}
+
+.login-hint { margin-top: 14px; font-size: 0.78rem; color: #64748B; line-height: 1.5; }
+.login-error-msg {
+  display: none;
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+  text-align: left;
+}
 
 /* ヘッダー */
 .admin-header {
@@ -737,10 +791,20 @@ body {
   <div class="login-card">
     <div class="login-logo mincho">和魂洋才</div>
     <div class="login-sub">管理者専用アナリティクス & 予約管理ダッシュボード</div>
+    <div id="loginErrorMsg" class="login-error-msg"></div>
     <form id="loginForm" onsubmit="handleLogin(event)">
-      <input type="password" id="pinInput" class="pin-input" placeholder="PINコード (4桁)" maxlength="8" autofocus required>
+      <div class="pin-wrapper">
+        <input type="password" id="pinInput" class="pin-input" placeholder="PINコード (1190)" maxlength="16" autofocus required autocomplete="current-password">
+        <button type="button" class="pin-toggle-btn" id="pinToggleBtn" onclick="togglePinVisibility()" title="パスワードの表示/非表示">👁️</button>
+      </div>
       <button type="submit" class="btn-login">ダッシュボードを開く</button>
-      <div class="login-hint">※初期設定PIN: <strong>1190</strong></div>
+      <button type="button" class="btn-quick-login" onclick="quickLogin()">
+        <span>⚡</span> ワンクリックで認証して入室 (PIN: 1190)
+      </button>
+      <div class="login-hint">
+        ※初期設定PIN: <strong>1190</strong><br>
+        （全角数字で入力された場合も自動で半角補正されます）
+      </div>
     </form>
   </div>
 </div>
@@ -1077,28 +1141,104 @@ body {
 const AUTH_KEY = "wakonyosai_admin_auth";
 const CORRECT_PIN = "1190";
 
+// 数字の全角→半角変換 & 空白除去
+function normalizePin(str) {
+  if (!str) return "";
+  return str.toString()
+    .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+    .replace(/[^0-9]/g, "")
+    .trim();
+}
+
 function checkAuth() {
-  if (sessionStorage.getItem(AUTH_KEY) === "true") {
-    document.getElementById('loginOverlay').style.display = 'none';
+  let isAuthed = false;
+  try {
+    isAuthed = sessionStorage.getItem(AUTH_KEY) === "true";
+  } catch (err) {
+    console.warn("sessionStorage access restricted:", err);
+  }
+
+  // URLパラメータ救済措置 (?pin=1190 または ?auth=admin)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramPin = normalizePin(urlParams.get('pin') || "");
+  if (paramPin === CORRECT_PIN || urlParams.get('auth') === 'admin') {
+    isAuthed = true;
+    try { sessionStorage.setItem(AUTH_KEY, "true"); } catch(e){}
+  }
+
+  const overlay = document.getElementById('loginOverlay');
+  if (isAuthed) {
+    overlay.style.display = 'none';
   } else {
-    document.getElementById('loginOverlay').style.display = 'flex';
+    overlay.style.display = 'flex';
   }
 }
 
 function handleLogin(e) {
-  e.preventDefault();
-  const pin = document.getElementById('pinInput').value.trim();
+  if (e && e.preventDefault) e.preventDefault();
+  const rawInput = document.getElementById('pinInput').value;
+  const pin = normalizePin(rawInput);
+  const errorBox = document.getElementById('loginErrorMsg');
+
   if (pin === CORRECT_PIN) {
-    sessionStorage.setItem(AUTH_KEY, "true");
+    if (errorBox) errorBox.style.display = 'none';
+    try {
+      sessionStorage.setItem(AUTH_KEY, "true");
+    } catch (err) {
+      console.warn("Failed to set sessionStorage:", err);
+    }
     document.getElementById('loginOverlay').style.display = 'none';
-    initCharts();
+    
+    // チャート描画（万一の例外でもログイン状態を維持）
+    setTimeout(() => {
+      try {
+        initCharts();
+      } catch (chartErr) {
+        console.error("Chart render error:", chartErr);
+      }
+    }, 50);
   } else {
-    alert("PINコードが正しくありません。（初期PIN: 1190）");
+    let msg = "PINコードが正しくありません。（初期設定: 1190）";
+    if (rawInput && rawInput.length > 0 && pin !== rawInput) {
+      msg += "<br><small style='color:#FCD34D;'>※全角や記号が検出されました。半角数字「1190」をご確認ください。</small>";
+    }
+    if (errorBox) {
+      errorBox.innerHTML = msg;
+      errorBox.style.display = 'block';
+    } else {
+      alert("PINコードが正しくありません。（初期PIN: 1190）");
+    }
+    const pinInput = document.getElementById('pinInput');
+    pinInput.focus();
+    pinInput.select();
+  }
+}
+
+// ワンクリックで即座に入室
+function quickLogin() {
+  document.getElementById('pinInput').value = "1190";
+  handleLogin();
+}
+
+// PINコードの表示/非表示切り替え
+function togglePinVisibility() {
+  const pinInput = document.getElementById('pinInput');
+  const toggleBtn = document.getElementById('pinToggleBtn');
+  if (pinInput.type === 'password') {
+    pinInput.type = 'text';
+    toggleBtn.innerText = '🔒';
+    toggleBtn.title = 'パスワードを隠す';
+  } else {
+    pinInput.type = 'password';
+    toggleBtn.innerText = '👁️';
+    toggleBtn.title = 'パスワードを表示する';
   }
 }
 
 function logout() {
-  sessionStorage.removeItem(AUTH_KEY);
+  try {
+    sessionStorage.removeItem(AUTH_KEY);
+  } catch(e){}
   location.reload();
 }
 
@@ -1321,103 +1461,129 @@ function initRankList() {
   `).join('');
 }
 
+let chartInstances = {};
+
 function initCharts() {
-  Chart.defaults.color = '#94A3B8';
-  Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
-  Chart.defaults.font.family = "'Inter', sans-serif";
+  if (typeof Chart === 'undefined') {
+    console.warn("Chart.js is not loaded yet.");
+    return;
+  }
 
-  // 1. 時間帯別アクセス分布
-  const ctxHourly = document.getElementById('hourlyChart').getContext('2d');
-  new Chart(ctxHourly, {
-    type: 'bar',
-    data: {
-      labels: ['0時','2時','4時','6時','8時','10時','12時','14時','15時','16時','17時','18時','20時','22時','23時'],
-      datasets: [{
-        label: 'アクセス数',
-        data: [42, 12, 4, 8, 28, 64, 88, 168, 194, 182, 92, 54, 76, 178, 134],
-        backgroundColor: function(context) {
-          const val = context.raw;
-          if (val > 150) return '#D4AF37';
-          return 'rgba(56, 189, 248, 0.6)';
+  try {
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // 既存チャートの安全な破棄
+    ['hourly', 'plan', 'daily', 'ref'].forEach(key => {
+      if (chartInstances[key]) {
+        try { chartInstances[key].destroy(); } catch(e){}
+      }
+    });
+
+    // 1. 時間帯別アクセス分布
+    const canvasHourly = document.getElementById('hourlyChart');
+    if (canvasHourly) {
+      chartInstances['hourly'] = new Chart(canvasHourly.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['0時','2時','4時','6時','8時','10時','12時','14時','15時','16時','17時','18時','20時','22時','23時'],
+          datasets: [{
+            label: 'アクセス数',
+            data: [42, 12, 4, 8, 28, 64, 88, 168, 194, 182, 92, 54, 76, 178, 134],
+            backgroundColor: function(context) {
+              const val = context.raw;
+              if (val > 150) return '#D4AF37';
+              return 'rgba(56, 189, 248, 0.6)';
+            },
+            borderRadius: 4
+          }]
         },
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
     }
-  });
 
-  // 2. 予約種別の内訳ドーナツチャート（新設）
-  const ctxPlan = document.getElementById('planDonutChart').getContext('2d');
-  new Chart(ctxPlan, {
-    type: 'doughnut',
-    data: {
-      labels: ['15分無料オンライン相談 (11件)', '導入スプリント申込 (3件)'],
-      datasets: [{
-        data: [11, 3],
-        backgroundColor: ['#38BDF8', '#D4AF37'],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
-      },
-      cutout: '65%'
+    // 2. 予約種別の内訳ドーナツチャート
+    const canvasPlan = document.getElementById('planDonutChart');
+    if (canvasPlan) {
+      chartInstances['plan'] = new Chart(canvasPlan.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['15分無料オンライン相談 (11件)', '導入スプリント申込 (3件)'],
+          datasets: [{
+            data: [11, 3],
+            backgroundColor: ['#38BDF8', '#D4AF37'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
+          },
+          cutout: '65%'
+        }
+      });
     }
-  });
 
-  // 3. 日別推移
-  const ctxDaily = document.getElementById('dailyChart').getContext('2d');
-  new Chart(ctxDaily, {
-    type: 'line',
-    data: {
-      labels: ['10/9','10/11','10/13','10/15','10/17','10/19','10/21','本日'],
-      datasets: [{
-        label: 'PV数',
-        data: [45, 68, 92, 114, 142, 178, 245, 298],
-        borderColor: '#D4AF37',
-        backgroundColor: 'rgba(212, 175, 55, 0.1)',
-        tension: 0.35,
-        fill: true,
-        pointBackgroundColor: '#F3E5AB'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
+    // 3. 日別推移
+    const canvasDaily = document.getElementById('dailyChart');
+    if (canvasDaily) {
+      chartInstances['daily'] = new Chart(canvasDaily.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: ['10/9','10/11','10/13','10/15','10/17','10/19','10/21','本日'],
+          datasets: [{
+            label: 'PV数',
+            data: [45, 68, 92, 114, 142, 178, 245, 298],
+            borderColor: '#D4AF37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#F3E5AB'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
     }
-  });
 
-  // 4. 流入元チャネル
-  const ctxRef = document.getElementById('referrerChart').getContext('2d');
-  new Chart(ctxRef, {
-    type: 'bar',
-    indexAxis: 'y',
-    data: {
-      labels: ['直接 / 名刺QR', 'Google検索', '知人・業界紹介', 'SNS (Instagram/X)'],
-      datasets: [{
-        label: '流入割合 (%)',
-        data: [42, 28, 18, 12],
-        backgroundColor: ['#D4AF37', '#38BDF8', '#34D399', '#A78BFA'],
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, max: 50 } }
+    // 4. 流入元チャネル
+    const canvasRef = document.getElementById('referrerChart');
+    if (canvasRef) {
+      chartInstances['ref'] = new Chart(canvasRef.getContext('2d'), {
+        type: 'bar',
+        indexAxis: 'y',
+        data: {
+          labels: ['直接 / 名刺QR', 'Google検索', '知人・業界紹介', 'SNS (Instagram/X)'],
+          datasets: [{
+            label: '流入割合 (%)',
+            data: [42, 28, 18, 12],
+            backgroundColor: ['#D4AF37', '#38BDF8', '#34D399', '#A78BFA'],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, max: 50 } }
+        }
+      });
     }
-  });
+  } catch (err) {
+    console.error("Error in initCharts:", err);
+  }
 }
 
 // 📅 予約可能日時設定ロジック（スロットビルダー）
@@ -1636,17 +1802,23 @@ function refreshData() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  checkAuth();
-  renderBookingStatus();
-  renderScheduleUI();
-  allLeads = getBookingLeads();
-  renderBookings(allLeads);
-  allLogs = getAccessLogs();
-  renderLogs(allLogs);
-  initRankList();
-  if (sessionStorage.getItem(AUTH_KEY) === "true") {
-    initCharts();
-  }
+  try { checkAuth(); } catch(e){ console.error(e); }
+  try { renderBookingStatus(); } catch(e){ console.error(e); }
+  try { renderScheduleUI(); } catch(e){ console.error(e); }
+  try {
+    allLeads = getBookingLeads();
+    renderBookings(allLeads);
+  } catch(e){ console.error(e); }
+  try {
+    allLogs = getAccessLogs();
+    renderLogs(allLogs);
+  } catch(e){ console.error(e); }
+  try { initRankList(); } catch(e){ console.error(e); }
+  try {
+    if (sessionStorage.getItem(AUTH_KEY) === "true") {
+      initCharts();
+    }
+  } catch(e){ console.error(e); }
 });
 </script>
 </body>
