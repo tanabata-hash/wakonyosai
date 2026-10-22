@@ -594,6 +594,134 @@ body {
   color: var(--accent-green);
 }
 
+/* 予約可能日時設定パネル */
+.schedule-panel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.schedule-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.schedule-config-section {
+  margin-bottom: 22px;
+}
+
+.config-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--accent-gold-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.checkbox-pill-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.checkbox-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #E2E8F0;
+  transition: all 0.2s;
+}
+
+.checkbox-pill:hover {
+  border-color: var(--accent-gold);
+}
+
+.checkbox-pill input {
+  accent-color: var(--accent-gold);
+}
+
+.slots-grid-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.date-slot-card {
+  background: rgba(10, 14, 23, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.date-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.date-slot-day {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #FFF;
+}
+
+.btn-slot-toggle {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  text-align: center;
+  margin: 3px 2px;
+}
+
+.slot-available {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #A7F3D0;
+}
+
+.slot-available:hover {
+  background: rgba(52, 211, 153, 0.3);
+}
+
+.slot-blocked {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #FCA5A5;
+  text-decoration: line-through;
+}
+
+.slot-blocked:hover {
+  background: rgba(248, 113, 113, 0.3);
+}
+
 @media (max-width: 900px) {
   .charts-grid { grid-template-columns: 1fr; }
   .admin-header { flex-direction: column; align-items: flex-start; }
@@ -659,6 +787,49 @@ body {
       <button id="toggleStatusBtn" class="btn-toggle-status btn-close-action" onclick="toggleBookingStatus()">
         ⏸ 予約受付を一時停止（満席に設定）
       </button>
+    </div>
+  </div>
+
+  <!-- 📅 予約可能日時・受付枠の設定パネル（新設） -->
+  <div class="schedule-panel-card">
+    <div class="schedule-panel-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.4rem;">📅</span>
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #FFF;">予約可能日時・時間枠の設定（カレンダースロット管理）</h3>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">受付可能な「曜日」「基本時間帯」「特定日の空き/満席」を設定できます。公開サイトの予約枠へ即時連動します。</div>
+        </div>
+      </div>
+      <button class="btn-pill" style="background: var(--accent-gold); color: #000; font-weight: 700; padding: 10px 18px;" onclick="saveScheduleSettings()">
+        💾 日時設定を保存してサイトに反映
+      </button>
+    </div>
+
+    <!-- 1. 受付可能な曜日設定 -->
+    <div class="schedule-config-section">
+      <div class="config-title">① 受付可能な曜日</div>
+      <div class="checkbox-pill-group" id="daysConfigGroup">
+        <!-- JS動的生成: 月〜日 -->
+      </div>
+    </div>
+
+    <!-- 2. 基本の受付時間帯 -->
+    <div class="schedule-config-section">
+      <div class="config-title">② 基本の受付時間帯（仕込み時間枠）</div>
+      <div class="checkbox-pill-group" id="timesConfigGroup">
+        <!-- JS動的生成: 14:00〜17:00 -->
+      </div>
+    </div>
+
+    <!-- 3. 直近14日間のスロット別 空き／満席（ブロック）管理 -->
+    <div class="schedule-config-section">
+      <div class="config-title">
+        <span>③ 直近14日間のスロット個別管理</span>
+        <span style="font-size: 0.78rem; font-weight: 400; color: var(--text-muted);">（※各時間枠をクリックすると【◎ 受付中】と【✕ 満席/不可】を切り替えられます）</span>
+      </div>
+      <div class="slots-grid-wrapper" id="dateSlotsWrapper">
+        <!-- JS動的生成 -->
+      </div>
     </div>
   </div>
 
@@ -1238,18 +1409,158 @@ function initCharts() {
   });
 }
 
+// 📅 予約可能日時設定ロジック（スロットビルダー）
+const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
+
+const ALL_DAYS = [
+  { val: 1, label: "月曜日" },
+  { val: 2, label: "火曜日" },
+  { val: 3, label: "水曜日" },
+  { val: 4, label: "木曜日" },
+  { val: 5, label: "金曜日" },
+  { val: 6, label: "土曜日" },
+  { val: 0, label: "日曜日" }
+];
+
+const ALL_TIMES = [
+  "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"
+];
+
+function getScheduleConfig() {
+  const saved = localStorage.getItem(SCHEDULE_STORAGE_KEY);
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e){}
+  }
+  return {
+    activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
+    activeTimes: ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
+    blockedSlots: {} // key: "YYYY-MM-DD_HH:MM" -> true
+  };
+}
+
+let currentSchedule = getScheduleConfig();
+
+function renderScheduleUI() {
+  // 1. 曜日チェックボックス
+  const daysGroup = document.getElementById('daysConfigGroup');
+  daysGroup.innerHTML = ALL_DAYS.map(d => {
+    const isChecked = currentSchedule.activeDays.includes(d.val) ? "checked" : "";
+    return `
+      <label class="checkbox-pill">
+        <input type="checkbox" name="cfgDay" value="${d.val}" ${isChecked} onchange="onDayChange()">
+        <span>${d.label}</span>
+      </label>
+    `;
+  }).join('');
+
+  // 2. 時間帯チェックボックス
+  const timesGroup = document.getElementById('timesConfigGroup');
+  timesGroup.innerHTML = ALL_TIMES.map(t => {
+    const isChecked = currentSchedule.activeTimes.includes(t) ? "checked" : "";
+    return `
+      <label class="checkbox-pill">
+        <input type="checkbox" name="cfgTime" value="${t}" ${isChecked} onchange="onTimeChange()">
+        <span>${t} 〜</span>
+      </label>
+    `;
+  }).join('');
+
+  // 3. 直近14日間のスロット一覧
+  renderSlotsGrid();
+}
+
+function onDayChange() {
+  const checked = Array.from(document.querySelectorAll('input[name="cfgDay"]:checked')).map(el => Number(el.value));
+  currentSchedule.activeDays = checked;
+  renderSlotsGrid();
+}
+
+function onTimeChange() {
+  const checked = Array.from(document.querySelectorAll('input[name="cfgTime"]:checked')).map(el => el.value);
+  currentSchedule.activeTimes = checked;
+  renderSlotsGrid();
+}
+
+function renderSlotsGrid() {
+  const wrapper = document.getElementById('dateSlotsWrapper');
+  const today = new Date();
+  const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
+  let html = "";
+
+  for (let i = 1; i <= 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayOfWeek = d.getDay();
+    const dayLabel = `${d.getMonth()+1}/${d.getDate()} (${dayNames[dayOfWeek]})`;
+    const isDayActive = currentSchedule.activeDays.includes(dayOfWeek);
+
+    if (!isDayActive) {
+      html += `
+        <div class="date-slot-card" style="opacity: 0.45;">
+          <div class="date-slot-header">
+            <span class="date-slot-day">${dayLabel}</span>
+            <span style="font-size: 0.72rem; color: var(--danger); font-weight: 700;">定休・受付外</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 12px 0;">受付なし（曜日設定OFF）</div>
+        </div>
+      `;
+      continue;
+    }
+
+    const slotButtons = currentSchedule.activeTimes.map(time => {
+      const slotKey = `${dateStr}_${time}`;
+      const isBlocked = !!currentSchedule.blockedSlots[slotKey];
+      const cls = isBlocked ? "slot-blocked" : "slot-available";
+      const txt = isBlocked ? `✕ ${time}` : `◎ ${time}`;
+      return `<button type="button" class="btn-slot-toggle ${cls}" onclick="toggleSlot('${slotKey}')" title="${isBlocked ? '現在満席/不可(クリックで受付可に)' : '現在受付中(クリックで満席に)'}">${txt}</button>`;
+    }).join('');
+
+    html += `
+      <div class="date-slot-card">
+        <div class="date-slot-header">
+          <span class="date-slot-day">${dayLabel}</span>
+          <span style="font-size: 0.72rem; color: var(--accent-gold-light);">クリックで切替</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap;">
+          ${slotButtons || '<div style="font-size: 0.8rem; color: var(--text-muted);">有効時間なし</div>'}
+        </div>
+      </div>
+    `;
+  }
+
+  wrapper.innerHTML = html;
+}
+
+function toggleSlot(slotKey) {
+  if (currentSchedule.blockedSlots[slotKey]) {
+    delete currentSchedule.blockedSlots[slotKey];
+  } else {
+    currentSchedule.blockedSlots[slotKey] = true;
+  }
+  renderSlotsGrid();
+}
+
+function saveScheduleSettings() {
+  localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(currentSchedule));
+  alert("【保存完了】予約可能日時・時間枠の設定を保存しました。\n公開サイト側の予約フォームへ即時反映されます。");
+}
+
 function refreshData() {
   allLogs = getAccessLogs();
   renderLogs(allLogs);
   allLeads = getBookingLeads();
   renderBookings(allLeads);
   renderBookingStatus();
+  currentSchedule = getScheduleConfig();
+  renderScheduleUI();
   alert("最新の予約・アクセスデータに更新しました。");
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   renderBookingStatus();
+  renderScheduleUI();
   allLeads = getBookingLeads();
   renderBookings(allLeads);
   allLogs = getAccessLogs();

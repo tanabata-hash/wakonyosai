@@ -1185,21 +1185,27 @@ footer {
           </div>
         </div>
 
+        <!-- ⚡ 直近の空き枠クイック選択 -->
+        <div style="margin-bottom: 22px; background: rgba(18, 24, 36, 0.4); padding: 14px 18px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div style="font-size: 0.82rem; color: var(--accent-gold-light); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <span>⚡</span>
+            <span>現在ご案内可能な直近の空き枠（タップで自動入力）</span>
+          </div>
+          <div id="quickSlotsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <!-- JS動的生成 -->
+          </div>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">ご希望日 <span>*</span></label>
-            <input type="date" name="date" id="bookingDate" class="form-control" required>
+            <input type="date" name="date" id="bookingDate" class="form-control" required onchange="onBookingDateChange()">
+            <div id="dateNotice" style="font-size: 0.78rem; color: var(--accent-gold); margin-top: 5px;"></div>
           </div>
           <div class="form-group">
             <label class="form-label">ご希望時間帯（仕込み時間等） <span>*</span></label>
-            <select name="time" class="form-control" required>
-              <option value="14:00">14:00 〜 14:45</option>
-              <option value="14:30">14:30 〜 15:15</option>
-              <option value="15:00" selected>15:00 〜 15:45（推奨）</option>
-              <option value="15:30">15:30 〜 16:15（推奨）</option>
-              <option value="16:00">16:00 〜 16:45</option>
-              <option value="16:30">16:30 〜 17:15</option>
-              <option value="17:00">17:00 〜 17:45</option>
+            <select name="time" id="bookingTime" class="form-control" required>
+              <!-- JS動的生成 -->
             </select>
           </div>
         </div>
@@ -1349,6 +1355,112 @@ function selectPlan(plan) {
   }
 }
 
+// 📅 予約可能日時設定（アドミン連動）
+const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
+
+function getScheduleConfig() {
+  const saved = localStorage.getItem(SCHEDULE_STORAGE_KEY);
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e){}
+  }
+  return {
+    activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
+    activeTimes: ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
+    blockedSlots: {}
+  };
+}
+
+function onBookingDateChange() {
+  const cfg = getScheduleConfig();
+  const dateInput = document.getElementById('bookingDate');
+  const timeSelect = document.getElementById('bookingTime');
+  const notice = document.getElementById('dateNotice');
+  if (!dateInput.value) return;
+
+  const [y, m, d] = dateInput.value.split('-').map(Number);
+  const selectedDate = new Date(y, m - 1, d);
+  const dayOfWeek = selectedDate.getDay();
+
+  // 曜日チェック
+  if (!cfg.activeDays.includes(dayOfWeek)) {
+    notice.innerText = "⚠️ 選択された曜日は受付時間外（定休日）です。別の日程をご選択ください。";
+    timeSelect.innerHTML = '<option value="">受付時間外の曜日です</option>';
+    return;
+  } else {
+    notice.innerText = "";
+  }
+
+  // 時間帯生成
+  const dateStr = dateInput.value;
+  let optionsHtml = "";
+  let availableCount = 0;
+
+  cfg.activeTimes.forEach(time => {
+    const slotKey = `${dateStr}_${time}`;
+    const isBlocked = !!cfg.blockedSlots[slotKey];
+    if (isBlocked) {
+      optionsHtml += `<option value="${time}" disabled style="color: #64748B;">${time} 〜（満席・不可）</option>`;
+    } else {
+      availableCount++;
+      const isRecommend = (time === "15:00" || time === "15:30") ? "（推奨）" : "";
+      optionsHtml += `<option value="${time}">${time} 〜 ${isRecommend}</option>`;
+    }
+  });
+
+  if (availableCount === 0) {
+    notice.innerText = "⚠️ この日は全ての時間帯が満席となっております。";
+    timeSelect.innerHTML = '<option value="">この日は満席です</option>';
+  } else {
+    timeSelect.innerHTML = optionsHtml;
+  }
+}
+
+function selectQuickSlot(dateStr, timeStr) {
+  const dateInput = document.getElementById('bookingDate');
+  dateInput.value = dateStr;
+  onBookingDateChange();
+  const timeSelect = document.getElementById('bookingTime');
+  timeSelect.value = timeStr;
+}
+
+function initQuickSlots() {
+  const cfg = getScheduleConfig();
+  const container = document.getElementById('quickSlotsContainer');
+  const today = new Date();
+  const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
+  let slots = [];
+
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dayOfWeek = d.getDay();
+    if (!cfg.activeDays.includes(dayOfWeek)) continue;
+
+    const dateStr = d.toISOString().split('T')[0];
+    const monthDay = `${d.getMonth()+1}/${d.getDate()}(${dayNames[dayOfWeek]})`;
+
+    for (const time of cfg.activeTimes) {
+      const slotKey = `${dateStr}_${time}`;
+      if (!cfg.blockedSlots[slotKey]) {
+        slots.push({ dateStr, time, label: `${monthDay} ${time}〜` });
+        if (slots.length >= 6) break;
+      }
+    }
+    if (slots.length >= 6) break;
+  }
+
+  if (slots.length === 0) {
+    container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted);">直近の受付可能枠は現在調整中です。下記より希望日をご選択ください。</span>';
+    return;
+  }
+
+  container.innerHTML = slots.map(s => `
+    <button type="button" onclick="selectQuickSlot('${s.dateStr}', '${s.time}')" style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--border-gold); color: var(--accent-gold-light); font-size: 0.78rem; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+      ${s.label}
+    </button>
+  `).join('');
+}
+
 // 受付状態チェック（アドミン連動）
 function checkBookingStatus() {
   const status = localStorage.getItem('wakonyosai_booking_status');
@@ -1372,6 +1484,8 @@ function checkBookingStatus() {
 // ページ読み込み時の記録（初回PV）とステータス初期化
 window.addEventListener('load', () => {
   checkBookingStatus();
+  initQuickSlots();
+  onBookingDateChange();
   recordAnalyticsEvent("トップページ閲覧");
   
   // URLハッシュやパラメータ判定
