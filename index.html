@@ -700,12 +700,171 @@ footer {
   background: #070A10;
 }
 
+/* Philosophy Section: 和魂洋才 */
+.philosophy-section {
+  padding: 80px 0;
+  background: linear-gradient(180deg, var(--bg-primary) 0%, #151D2C 50%, var(--bg-secondary) 100%);
+  position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.philosophy-card {
+  background: linear-gradient(145deg, rgba(26, 35, 51, 0.95) 0%, rgba(15, 21, 33, 0.98) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 56px 48px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(212, 175, 55, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.philosophy-card::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.philosophy-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.philosophy-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--accent-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.philosophy-kanji {
+  display: block;
+  font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--accent-gold-light);
+  background: linear-gradient(135deg, #FFF 0%, var(--accent-gold-light) 50%, var(--accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.philosophy-title {
+  font-size: 1.35rem;
+  color: #FFFFFF;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.philosophy-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  margin: 18px auto 0;
+}
+
+.philosophy-lead {
+  text-align: center;
+  font-size: 1.15rem;
+  color: var(--accent-gold-light);
+  margin-bottom: 40px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.philosophy-box {
+  background: rgba(18, 24, 36, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 32px 28px;
+  transition: all 0.25s ease;
+}
+
+.philosophy-box:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-2px);
+}
+
+.box-tag {
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.philosophy-box h3 {
+  font-size: 1.35rem;
+  color: #FFFFFF;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.philosophy-box p {
+  font-size: 0.95rem;
+  color: #CBD5E1;
+  line-height: 1.75;
+}
+
+.philosophy-connect {
+  text-align: center;
+  padding: 0 10px;
+}
+
+.connect-icon {
+  font-size: 1.8rem;
+  color: var(--accent-gold);
+  margin-bottom: 6px;
+  text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+.connect-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+
+.philosophy-narrative {
+  background: rgba(10, 14, 22, 0.6);
+  border-left: 3px solid var(--accent-gold);
+  padding: 24px 30px;
+  border-radius: 0 8px 8px 0;
+  line-height: 1.9;
+  font-size: 1.02rem;
+  color: #E2E8F0;
+}
+
+.philosophy-narrative strong {
+  color: var(--accent-gold-light);
+}
+
 @media (max-width: 768px) {
   .hero h1 { font-size: 2.1rem; }
   .proof-grid-wrapper { grid-template-columns: 1fr; }
   .problem-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .booking-box { padding: 32px 20px; }
+  .philosophy-card { padding: 36px 20px; }
+  .philosophy-grid { grid-template-columns: 1fr; gap: 16px; }
+  .philosophy-connect { padding: 8px 0; }
+  .philosophy-narrative { padding: 20px; }
 }
 </style>
 </head>
@@ -714,8 +873,8 @@ footer {
 <header>
   <div class="container header-inner">
     <div class="logo-group">
-      <div class="logo mincho">料理と文化を伝える、おもてなし英語</div>
-      <div class="logo-sub">味だけでなく、こだわり・歴史・文化のストーリーを届ける現場英語</div>
+      <div class="logo mincho"><span style="color: var(--accent-gold); font-size: 1.25rem; letter-spacing: 0.15em; margin-right: 8px;">和魂洋才</span>料理と文化を伝える、おもてなし英語</div>
+      <div class="logo-sub">日本の食文化の魂（和魂）を、世界に通じる言葉（洋才）で届ける</div>
     </div>
     <a href="#booking" class="btn-header">15分無料相談を予約</a>
   </div>
@@ -724,7 +883,7 @@ footer {
 <!-- Hero Section with Real Kaiseki Atmosphere -->
 <section class="hero">
   <div class="container hero-content">
-    <div class="badge">日本料理・高級レストラン専門</div>
+    <div class="badge">和魂洋才 ─ WAKONYOSAI ─ 日本料理・高級旅館専門</div>
     <h1 class="mincho">
       <span class="phrase">「料理名」だけでなく</span><br class="pc-br">
       <span class="hero-h1-line2"><span>「こだわり・歴史・文化」</span>が伝わる英語を</span>
@@ -739,6 +898,51 @@ footer {
     <div class="cta-group">
       <a href="#booking" class="btn-primary">15分オンライン相談を予約する（無料）</a>
       <a href="proposal_sample_inaba.pdf" class="btn-secondary" target="_blank">提案書・サンプルPDFを見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- Philosophy Section: 和魂洋才の想いと背景 -->
+<section class="philosophy-section">
+  <div class="container">
+    <div class="philosophy-card">
+      <div class="philosophy-header">
+        <span class="philosophy-badge">BRAND PHILOSOPHY & STORY</span>
+        <span class="philosophy-kanji mincho">和魂洋才</span>
+        <h2 class="philosophy-title mincho">「和魂洋才（わこんようさい）」に込めた意図と背景</h2>
+        <div class="philosophy-divider"></div>
+      </div>
+      
+      <div class="philosophy-lead mincho">
+        日本の魂を守り、世界に開かれた言葉で届ける。
+      </div>
+
+      <div class="philosophy-grid">
+        <div class="philosophy-box">
+          <div class="box-tag">【和魂】わこん ─ 日本の心と伝統</div>
+          <h3 class="mincho">料理人の誇りと文化の深遠</h3>
+          <p>出汁の歴史、備長炭の火入れ、器の由来、二十四節気の旬の美学。何百年と受け継がれてきた日本料理の精神と職人の熱量をそのまま大切に守ること。</p>
+        </div>
+
+        <div class="philosophy-connect">
+          <div class="connect-icon">✕</div>
+          <div class="connect-text">融合・昇華</div>
+        </div>
+
+        <div class="philosophy-box">
+          <div class="box-tag">【洋才】ようさい ─ 世界に通じる技術</div>
+          <h3 class="mincho">生きた現場英語と作法</h3>
+          <p>単なる英単語の直訳ではなく、海外ゲストの知的好奇心を刺激し心を通わせる洗練された英語表現と、現場スタッフが無理なく自走できる仕組み。</p>
+        </div>
+      </div>
+
+      <div class="philosophy-narrative">
+        <p>
+          海外からのゲストに「This is fish.」と料理名だけを伝えるのは、日本が誇る豊かな食文化の価値を伝えきれていない、あまりにも惜しい瞬間です。<br class="pc-br">
+          料理人が仕込みに込めた<strong>「和魂（日本の心）」</strong>を、誰でも現場で自然に話せる<strong>「洋才（生きた英語）」</strong>に乗せて世界へ届ける――。<br class="pc-br">
+          味だけでなく、食体験を通じて一生の記憶に残る感動をお届けしたいという強い想いから、この取り組みを<strong>「和魂洋才（wakonyosai.com）」</strong>と名付けました。
+        </p>
+      </div>
     </div>
   </div>
 </section>
@@ -1023,7 +1227,7 @@ footer {
 
 <footer>
   <div class="container">
-    <p>&copy; 2026 料理と文化を伝える、おもてなし英語. All rights reserved. | Contact: tanabata119@mac.com</p>
+    <p>&copy; 2026 和魂洋才（wakonyosai.com）─ 料理と文化を伝える、おもてなし英語. All rights reserved. | Contact: tanabata119@mac.com</p>
   </div>
 </footer>
 
