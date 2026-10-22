@@ -28,6 +28,11 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   background-color: var(--bg-primary);
@@ -36,6 +41,9 @@ body {
   -webkit-font-smoothing: antialiased;
   word-break: auto-phrase;
   overflow-wrap: break-word;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 h1, h2, h3, h4, p, li, .badge, .form-label {
@@ -904,16 +912,312 @@ footer {
   color: var(--accent-gold-light);
 }
 
+/* 📱 スマホ・タブレット（レスポンシブ）完全対応スタイル */
 @media (max-width: 768px) {
-  .hero h1 { font-size: 2.1rem; }
-  .proof-grid-wrapper { grid-template-columns: 1fr; }
-  .problem-grid { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr; }
-  .booking-box { padding: 32px 20px; }
-  .philosophy-card { padding: 36px 20px; }
-  .philosophy-grid { grid-template-columns: 1fr; gap: 16px; }
-  .philosophy-connect { padding: 8px 0; }
-  .philosophy-narrative { padding: 20px; }
+  .container {
+    padding: 0 16px;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* ヘッダー */
+  header {
+    padding: 14px 0;
+  }
+  .header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .logo-group {
+    text-align: center;
+  }
+  .logo {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  .logo .brand-name {
+    display: block;
+    margin-right: 0 !important;
+    margin-bottom: 2px;
+  }
+  .logo .brand-tagline {
+    font-size: 0.82rem;
+    color: var(--accent-gold-light);
+    display: block;
+  }
+  .logo-sub {
+    font-size: 0.68rem;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .btn-header {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  /* ヒーローセクション */
+  .hero {
+    padding: 60px 0 70px;
+    min-height: auto;
+    background-position: center top;
+  }
+  .hero-content {
+    padding: 0 4px;
+    width: 100%;
+  }
+  .badge {
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.45;
+    letter-spacing: 0.06em;
+    margin-bottom: 20px;
+    display: inline-block;
+    max-width: 100%;
+  }
+  .hero h1 {
+    font-size: clamp(1.4rem, 5.8vw, 1.85rem);
+    line-height: 1.42;
+    margin-bottom: 20px;
+    letter-spacing: 0.02em;
+    word-break: break-word;
+  }
+  .hero-h1-line2 {
+    white-space: normal !important;
+    display: inline !important;
+  }
+  .phrase {
+    display: inline !important;
+  }
+  .hero p {
+    font-size: 0.94rem;
+    line-height: 1.8;
+    margin-bottom: 28px;
+    padding: 0;
+  }
+  .cta-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  .btn-primary, .btn-secondary {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 15px 18px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+
+  /* Philosophy セクション */
+  .philosophy-section {
+    padding: 50px 0;
+  }
+  .philosophy-card {
+    padding: 30px 16px;
+    border-radius: 10px;
+  }
+  .philosophy-header {
+    margin-bottom: 24px;
+  }
+  .philosophy-badge {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+  }
+  .philosophy-kanji {
+    font-size: 2.2rem;
+    letter-spacing: 0.18em;
+  }
+  .philosophy-title {
+    font-size: 1.15rem;
+    line-height: 1.45;
+  }
+  .philosophy-lead {
+    font-size: 0.98rem;
+    margin-bottom: 26px;
+    line-height: 1.6;
+  }
+  .philosophy-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .philosophy-box {
+    padding: 22px 16px;
+  }
+  .philosophy-box h3 {
+    font-size: 1.2rem;
+  }
+  .philosophy-box p {
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+  .philosophy-connect {
+    padding: 4px 0;
+  }
+  .connect-icon {
+    font-size: 1.3rem;
+  }
+  .philosophy-narrative {
+    padding: 16px 14px;
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+
+  /* 実績セクション */
+  .proof {
+    padding: 50px 0;
+  }
+  .proof-grid-wrapper {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .proof-content h2 {
+    font-size: 1.55rem;
+    line-height: 1.4;
+  }
+  .proof-card {
+    padding: 18px 14px;
+  }
+  .proof-item h4 {
+    font-size: 0.96rem;
+  }
+  .proof-item p {
+    font-size: 0.86rem;
+  }
+
+  /* 課題セクション */
+  .section-challenges {
+    padding: 50px 0;
+  }
+  .section-title-wrap {
+    margin-bottom: 30px;
+  }
+  .section-title {
+    font-size: 1.55rem;
+  }
+  .problem-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .problem-card {
+    padding: 24px 18px;
+  }
+  .problem-card h3 {
+    font-size: 1.15rem;
+  }
+  .problem-card p {
+    font-size: 0.88rem;
+  }
+
+  /* メソッドセクション */
+  .section-methodology {
+    padding: 50px 0;
+  }
+  .method-box {
+    padding: 24px 16px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+  }
+  .method-box h3 {
+    font-size: 1.25rem;
+  }
+  .formula-box {
+    font-size: 0.82rem;
+    padding: 14px 14px;
+    word-break: break-all;
+    overflow-x: auto;
+  }
+
+  /* 料金セクション */
+  .section-pricing {
+    padding: 50px 0;
+  }
+  .pricing-card {
+    padding: 34px 16px;
+    border-radius: 12px;
+  }
+  .pricing-badge {
+    font-size: 0.78rem;
+    padding: 5px 16px;
+    top: -14px;
+  }
+  .price {
+    font-size: 2.2rem;
+    margin: 18px 0 6px;
+  }
+  .price span {
+    font-size: 0.95rem;
+  }
+  .pricing-features {
+    padding: 0;
+    margin: 20px 0;
+  }
+  .pricing-features li {
+    font-size: 0.88rem;
+    padding: 10px 0;
+  }
+
+  /* 予約・事前質問フォーム */
+  .booking-section {
+    padding: 50px 0;
+  }
+  .booking-box {
+    padding: 26px 14px;
+    border-radius: 12px;
+  }
+  .form-nav-tabs {
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    margin-bottom: 20px;
+  }
+  .form-nav-tab {
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .form-control {
+    font-size: 0.92rem;
+    padding: 12px 14px;
+  }
+  #quickSlotsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #quickSlotsContainer button {
+    font-size: 0.72rem;
+    padding: 5px 8px;
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+  }
+
+  /* モーダル & フッター */
+  .modal-box {
+    padding: 26px 16px;
+    max-width: 92vw;
+  }
+  .modal-box h3 {
+    font-size: 1.25rem;
+  }
+  .modal-box p {
+    font-size: 0.86rem;
+  }
+  footer {
+    padding: 28px 16px;
+    font-size: 0.76rem;
+    line-height: 1.7;
+  }
 }
 </style>
 </head>
@@ -922,7 +1226,7 @@ footer {
 <header>
   <div class="container header-inner">
     <div class="logo-group">
-      <div class="logo mincho"><span style="color: var(--accent-gold); font-size: 1.25rem; letter-spacing: 0.15em; margin-right: 8px;">和魂洋才</span>料理と文化を伝える、おもてなし英語</div>
+      <div class="logo mincho"><span class="brand-name" style="color: var(--accent-gold); font-size: 1.25rem; letter-spacing: 0.15em; margin-right: 8px;">和魂洋才</span><span class="brand-tagline">料理と文化を伝える、おもてなし英語</span></div>
       <div class="logo-sub">日本の食文化の魂（和魂）を、世界に通じる言葉（洋才）で届ける</div>
     </div>
     <a href="#booking" class="btn-header">15分無料相談を予約</a>

@@ -33,6 +33,11 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
   background-color: var(--bg-primary);
@@ -40,6 +45,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .mincho { font-family: 'Shippori Mincho', serif; }
@@ -766,9 +773,14 @@ body {
 
 @media (max-width: 900px) {
   .charts-grid { grid-template-columns: 1fr; }
-  .admin-header { flex-direction: column; align-items: flex-start; }
-  .control-banner { flex-direction: column; align-items: flex-start; }
-  .log-table { display: block; overflow-x: auto; }
+  .admin-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .header-actions { flex-wrap: wrap; gap: 8px; }
+  .control-banner { flex-direction: column; align-items: stretch; gap: 12px; }
+  .table-card { overflow-x: auto; width: 100%; }
+  .log-table { display: block; overflow-x: auto; min-width: 600px; width: 100%; }
+  .date-slot-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .control-box { overflow-x: auto; }
 }
 </style>
 </head>
