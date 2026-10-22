@@ -792,12 +792,12 @@ body {
     <div class="login-logo mincho">和魂洋才</div>
     <div class="login-sub">管理者専用アナリティクス & 予約管理ダッシュボード</div>
     <div id="loginErrorMsg" class="login-error-msg"></div>
-    <form id="loginForm" onsubmit="handleLogin(event)">
+    <form id="loginForm" onsubmit="event.preventDefault(); handleLogin(event); return false;">
       <div class="pin-wrapper">
-        <input type="password" id="pinInput" class="pin-input" placeholder="PINコード (1190)" maxlength="16" autofocus required autocomplete="current-password">
+        <input type="password" id="pinInput" class="pin-input" placeholder="PINコード (1190)" maxlength="16" autofocus required autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();handleLogin();}">
         <button type="button" class="pin-toggle-btn" id="pinToggleBtn" onclick="togglePinVisibility()" title="パスワードの表示/非表示">👁️</button>
       </div>
-      <button type="submit" class="btn-login">ダッシュボードを開く</button>
+      <button type="button" class="btn-login" onclick="handleLogin()">ダッシュボードを開く</button>
       <button type="button" class="btn-quick-login" onclick="quickLogin()">
         <span>⚡</span> ワンクリックで認証して入室 (PIN: 1190)
       </button>
@@ -1609,8 +1609,6 @@ function getJapaneseHoliday(dateStr) {
   return JAPANESE_HOLIDAYS[dateStr] || null;
 }
 
-// 📅 予約可能日時設定ロジック（スロットビルダー）
-const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
 
 const ALL_DAYS = [
   { val: 1, label: "月曜日" },
