@@ -1094,10 +1094,6 @@ body {
 </div>
 
 <script>
-// HTTPS自動昇格（安全な通信の確保）
-if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-  location.href = location.href.replace('http:', 'https:');
-}
 
 // 認証ロジック（SHA-256ハッシュ照合によりPINの推測・解析を防止）
 const AUTH_KEY = "wakonyosai_admin_auth";
