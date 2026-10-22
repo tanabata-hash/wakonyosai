@@ -1104,7 +1104,7 @@ body {
           <th>端末 / OS</th>
           <th>流入元 (Referrer)</th>
           <th>閲覧行動 / アクション</th>
-          <th>推定ユーザー像</th>
+          <th>アクセス時間帯</th>
         </tr>
       </thead>
       <tbody id="logTableBody">
@@ -1454,6 +1454,22 @@ function renderLogs(logs) {
     return;
   }
 
+  function getTimeBandDisplay(timeStr, existingBand) {
+    if (existingBand && !existingBand.includes("ユーザー") && !existingBand.includes("関係者")) {
+      return existingBand;
+    }
+    if (!timeStr) return "-";
+    const parts = timeStr.split(" ");
+    if (parts.length < 2) return "-";
+    const h = parseInt(parts[1].split(":")[0], 10);
+    if (isNaN(h)) return "-";
+    if (h >= 0 && h < 6) return "深夜 (0:00〜6:00)";
+    if (h >= 6 && h < 12) return "午前 (6:00〜12:00)";
+    if (h >= 12 && h < 15) return "昼 (12:00〜15:00)";
+    if (h >= 15 && h < 18) return "夕方・仕込み (15:00〜18:00)";
+    return "夜間 (18:00〜24:00)";
+  }
+
   tbody.innerHTML = logs.map(l => `
     <tr>
       <td class="outfit" style="color: #94A3B8;">${l.time || '-'}</td>
@@ -1461,7 +1477,7 @@ function renderLogs(logs) {
       <td>${l.device || '-'}</td>
       <td style="color: #CBD5E1;">${l.ref || 'Direct'}</td>
       <td><span style="color: var(--accent-gold-light); font-weight: 500;">${l.action || '閲覧'}</span></td>
-      <td style="color: var(--accent-gold-light); font-weight: 500;">${l.persona || '-'}</td>
+      <td style="color: var(--accent-gold-light); font-weight: 500;">${getTimeBandDisplay(l.time, l.timeBand)}</td>
     </tr>
   `).join('');
 
@@ -1485,8 +1501,9 @@ function filterLogs() {
   const filtered = allLogs.filter(l => 
     (l.loc || '').toLowerCase().includes(query) ||
     (l.device || '').toLowerCase().includes(query) ||
-    (l.persona || '').toLowerCase().includes(query) ||
-    (l.action || '').toLowerCase().includes(query)
+    (l.time || '').toLowerCase().includes(query) ||
+    (l.action || '').toLowerCase().includes(query) ||
+    getTimeBandDisplay(l.time, l.timeBand).toLowerCase().includes(query)
   );
   renderLogs(filtered);
 }
@@ -1523,14 +1540,14 @@ function exportBookingsExcel() {
 }
 
 function exportAccessLogsExcel() {
-  const headers = ["アクセス時刻", "アクセス元Location", "端末OS", "流入元(Referrer)", "閲覧行動/アクション", "推定ユーザー像"];
+  const headers = ["アクセス時刻", "アクセス元Location", "端末OS", "流入元(Referrer)", "閲覧行動/アクション", "アクセス時間帯"];
   const rows = allLogs.map(l => [
     `"${l.time || ''}"`,
     `"${l.loc || ''}"`,
     `"${l.device || ''}"`,
     `"${l.ref || ''}"`,
     `"${l.action || ''}"`,
-    `"${l.persona || ''}"`
+    `"${getTimeBandDisplay(l.time, l.timeBand)}"`
   ]);
 
   const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");

@@ -1353,7 +1353,7 @@ footer {
 
       <div class="philosophy-narrative">
         <p>
-          海外からのゲストに「This is fish.」と料理名だけを伝えるのは、日本が誇る豊かな食文化の価値を伝えきれていない、あまりにも惜しい瞬間です。<br class="pc-br">
+          海外からのゲストに「This is sashimi.（お造りです）」と料理名だけを伝えるのは、日本が誇る豊かな食文化の価値を伝えきれていない、あまりにも惜しい瞬間です。<br class="pc-br">
           料理人が仕込みに込めた<strong>「和魂（日本の心）」</strong>を、誰でも現場で自然に話せる<strong>「洋才（生きた英語）」</strong>に乗せて世界へ届ける――。<br class="pc-br">
           味だけでなく、食体験を通じて一生の記憶に残る感動をお届けしたいという強い想いから、この取り組みを<strong>「和魂洋才（wakonyosai.com）」</strong>と名付けました。
         </p>
@@ -1424,7 +1424,7 @@ footer {
         <h3><span class="phrase">料理名しか言えず</span><span class="phrase">こだわりが伝わらない</span></h3>
         <p>
           <span class="phrase">せっかくの出汁の歴史や備長炭の火入れの技法を伝えたくても</span>
-          <span class="phrase">「This is fish」のような単語の羅列で終わってしまい</span>
+          <span class="phrase">「This is sashimi」や「This is grilled fish」のような料理名の羅列だけで終わってしまい</span>
           <span class="phrase">文化体験としての価値を届けきれていない</span>
         </p>
       </div>
@@ -1787,6 +1787,13 @@ function recordAnalyticsEvent(actionName, customLoc) {
     else if (/Macintosh/i.test(ua)) device = "Mac (Chrome/Safari)";
     else if (/Windows/i.test(ua)) device = "Windows (PC)";
 
+    const hour = now.getHours();
+    let timeBand = "夜間 (18:00〜24:00)";
+    if (hour >= 0 && hour < 6) timeBand = "深夜 (0:00〜6:00)";
+    else if (hour >= 6 && hour < 12) timeBand = "午前 (6:00〜12:00)";
+    else if (hour >= 12 && hour < 15) timeBand = "昼 (12:00〜15:00)";
+    else if (hour >= 15 && hour < 18) timeBand = "夕方・仕込み (15:00〜18:00)";
+
     // 流入元
     let ref = document.referrer;
     if (!ref) ref = "Direct / 名刺QR";
@@ -1806,12 +1813,12 @@ function recordAnalyticsEvent(actionName, customLoc) {
         const loc = customLoc || `${region} (${city})`;
         const newLog = {
           time: timeStr,
+          timeBand: timeBand,
           loc: loc,
           badge: region.includes("東京") ? "badge-tokyo" : (region.includes("京都") ? "badge-kyoto" : "badge-osaka"),
           device: device,
           ref: ref,
-          action: actionName,
-          persona: "サイト訪問者（飲食店関係者）"
+          action: actionName
         };
         existing.unshift(newLog);
         if (existing.length > 50) existing.pop();
@@ -1820,12 +1827,12 @@ function recordAnalyticsEvent(actionName, customLoc) {
       .catch(() => {
         const newLog = {
           time: timeStr,
+          timeBand: timeBand,
           loc: customLoc || "東京都中央区 (銀座周辺)",
           badge: "badge-tokyo",
           device: device,
           ref: ref,
-          action: actionName,
-          persona: "サイト訪問者（飲食店関係者）"
+          action: actionName
         };
         existing.unshift(newLog);
         if (existing.length > 50) existing.pop();
