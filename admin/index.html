@@ -1119,7 +1119,8 @@ body {
 
 // 認証ロジック（SHA-256ハッシュ照合によりPINの推測・解析を防止）
 const AUTH_KEY = "wakonyosai_admin_auth";
-const PIN_HASH = "58eb0dd988df36c54ae88fcf58afcd0a69944c335d82dfbe68094063f54f4363";
+// 最新PINコード（1320）の不可逆SHA-256暗号化ハッシュ
+const PIN_HASH = "5f0fbfc126a9876e177921aeb69a9705447e5b4f29fc96631ab4ac6d31c62717";
 
 // 非セキュア(HTTP)環境や全ブラウザで確実に100%同期動作する純粋JSのSHA-256実装
 function calcSha256(ascii) {
@@ -1192,24 +1193,30 @@ function calcSha256(ascii) {
   return result;
 }
 
-// PIN検証（ユーザーが変更・保存されたカスタムPINを最優先で照合）
+// PIN検証（更新後の最新PINコード: 1320 を厳格照合）
 function verifyPin(inputPin) {
   if (!inputPin) return false;
 
-  // 1. ユーザー様が画面上で変更・設定された最新PINの照合
+  // 1. 最新PIN (1320) のSHA-256ハッシュ照合（全端末・スマホ共通）
+  try {
+    if (calcSha256(inputPin) === PIN_HASH) {
+      try { localStorage.setItem('wakonyosai_custom_pin', '1320'); } catch(e){}
+      return true;
+    }
+  } catch(e){}
+
+  // 2. 難読化照合フォールバック (1320)
+  try {
+    if (btoa(inputPin) === "MTMyMA==") {
+      try { localStorage.setItem('wakonyosai_custom_pin', '1320'); } catch(e){}
+      return true;
+    }
+  } catch(e){}
+
+  // 3. ローカルに保存されているカスタムPIN
   try {
     const customPin = localStorage.getItem('wakonyosai_custom_pin');
-    if (customPin && inputPin === customPin) return true;
-  } catch(e){}
-
-  // 2. 初期設定PIN (1190) のハッシュ照合
-  try {
-    if (calcSha256(inputPin) === PIN_HASH) return true;
-  } catch(e){}
-
-  // 3. 難読化フォールバック
-  try {
-    if (btoa(inputPin) === "MTE5MA==") return true;
+    if (customPin && inputPin === customPin && inputPin === "1320") return true;
   } catch(e){}
 
   return false;
