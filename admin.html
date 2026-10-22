@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>和魂洋才 管理ダッシュボード | アクセス解析・事業拡大インサイト</title>
+<title>和魂洋才 管理ダッシュボード | 予約管理・アクセス解析・事業拡大インサイト</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
@@ -24,6 +24,7 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-gold: rgba(212, 175, 55, 0.3);
   --danger: #F87171;
+  --warning: #FBBF24;
 }
 
 * {
@@ -41,13 +42,8 @@ body {
   min-height: 100vh;
 }
 
-.mincho {
-  font-family: 'Shippori Mincho', serif;
-}
-
-.outfit {
-  font-family: 'Outfit', sans-serif;
-}
+.mincho { font-family: 'Shippori Mincho', serif; }
+.outfit { font-family: 'Outfit', sans-serif; }
 
 /* 認証画面 */
 #loginOverlay {
@@ -119,28 +115,23 @@ body {
   transition: filter 0.2s;
 }
 
-.btn-login:hover {
-  filter: brightness(1.15);
-}
+.btn-login:hover { filter: brightness(1.15); }
+.login-hint { margin-top: 16px; font-size: 0.78rem; color: #64748B; }
 
-.login-hint {
-  margin-top: 16px;
-  font-size: 0.78rem;
-  color: #64748B;
-}
-
-/* メインレイアウト */
+/* ヘッダー */
 .admin-header {
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(19, 27, 42, 0.9);
+  background: rgba(19, 27, 42, 0.92);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 16px 28px;
+  padding: 14px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .header-left {
@@ -168,13 +159,14 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .btn-pill {
-  padding: 8px 16px;
+  padding: 8px 15px;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   border: 1px solid var(--border-subtle);
   background: rgba(255, 255, 255, 0.05);
   color: #E2E8F0;
@@ -184,6 +176,7 @@ body {
   align-items: center;
   gap: 6px;
   transition: all 0.2s;
+  font-weight: 500;
 }
 
 .btn-pill:hover {
@@ -191,20 +184,113 @@ body {
   border-color: var(--accent-gold);
 }
 
+.btn-excel {
+  background: linear-gradient(135deg, #107C41 0%, #0B552C 100%);
+  border-color: #107C41;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.btn-excel:hover {
+  filter: brightness(1.2);
+  border-color: #34D399;
+}
+
 .container {
   max-width: 1360px;
   margin: 0 auto;
-  padding: 32px 24px 60px;
+  padding: 28px 24px 60px;
 }
 
-/* 事業拡大インサイトバナー */
+/* 予約受付ステータス切替コントローラー */
+.control-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.control-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-open {
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid var(--accent-green);
+  color: var(--accent-green);
+}
+
+.status-closed {
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.btn-toggle-status {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-close-action {
+  background: rgba(248, 113, 113, 0.2);
+  border: 1px solid var(--danger);
+  color: #FECACA;
+}
+
+.btn-close-action:hover {
+  background: var(--danger);
+  color: #000;
+}
+
+.btn-open-action {
+  background: rgba(52, 211, 153, 0.2);
+  border: 1px solid var(--accent-green);
+  color: #A7F3D0;
+}
+
+.btn-open-action:hover {
+  background: var(--accent-green);
+  color: #000;
+}
+
+/* 事業拡大インサイト */
 .insight-banner {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(56, 189, 248, 0.08) 100%);
   border: 1px solid var(--border-gold);
   border-radius: 12px;
-  padding: 24px 28px;
-  margin-bottom: 32px;
-  position: relative;
+  padding: 22px 26px;
+  margin-bottom: 28px;
 }
 
 .insight-header {
@@ -214,12 +300,8 @@ body {
   margin-bottom: 14px;
 }
 
-.insight-icon {
-  font-size: 1.25rem;
-}
-
 .insight-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--accent-gold-light);
 }
@@ -242,12 +324,11 @@ body {
   color: var(--accent-gold);
   font-weight: 700;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
   margin-bottom: 6px;
 }
 
 .insight-text {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: #E2E8F0;
   line-height: 1.6;
 }
@@ -256,19 +337,19 @@ body {
   color: var(--accent-gold-light);
 }
 
-/* KPIカードグリッド */
+/* KPIカードグリッド（5カラム） */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
 }
 
 .kpi-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 22px 24px;
+  padding: 20px 22px;
   transition: transform 0.2s, border-color 0.2s;
 }
 
@@ -277,90 +358,89 @@ body {
   border-color: rgba(212, 175, 55, 0.4);
 }
 
+.kpi-card-featured {
+  border-color: var(--border-gold);
+  background: linear-gradient(145deg, rgba(26, 35, 51, 0.9) 0%, rgba(19, 27, 42, 0.9) 100%);
+}
+
 .kpi-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .kpi-value {
-  font-size: 2.2rem;
+  font-size: 2.1rem;
   font-weight: 700;
   color: #FFF;
   line-height: 1.1;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .kpi-trend {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.trend-up {
-  color: var(--accent-green);
-}
-
-.trend-sub {
-  color: var(--text-muted);
-}
+.trend-up { color: var(--accent-green); }
+.trend-sub { color: var(--text-muted); }
 
 /* チャートセクション */
 .charts-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: 22px;
+  margin-bottom: 28px;
 }
 
 .chart-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 24px;
+  padding: 22px;
 }
 
 .chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .chart-title {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #FFF;
 }
 
 .chart-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
 .chart-container {
   position: relative;
-  height: 280px;
+  height: 270px;
   width: 100%;
 }
 
 .charts-row-3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
+  gap: 22px;
   margin-bottom: 32px;
 }
 
-/* ロケーション & ヒートマップ */
 .location-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .location-item {
@@ -376,17 +456,17 @@ body {
 .location-name {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.9rem;
+  gap: 8px;
+  font-size: 0.88rem;
 }
 
 .location-bar-bg {
   flex: 1;
-  max-width: 100px;
+  max-width: 90px;
   height: 6px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 3px;
-  margin: 0 16px;
+  margin: 0 14px;
   overflow: hidden;
 }
 
@@ -397,19 +477,20 @@ body {
 }
 
 .location-count {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--accent-gold-light);
-  min-width: 48px;
+  min-width: 44px;
   text-align: right;
 }
 
-/* アクセスログテーブル */
+/* 予約一覧 & ログ一覧テーブル */
 .table-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 24px;
+  margin-bottom: 30px;
 }
 
 .table-header-row {
@@ -419,6 +500,13 @@ body {
   margin-bottom: 18px;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .search-input {
@@ -432,9 +520,7 @@ body {
   min-width: 220px;
 }
 
-.search-input:focus {
-  border-color: var(--accent-gold);
-}
+.search-input:focus { border-color: var(--accent-gold); }
 
 .log-table {
   width: 100%;
@@ -448,10 +534,11 @@ body {
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-subtle);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .log-table td {
-  padding: 14px;
+  padding: 13px 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: #E2E8F0;
 }
@@ -459,6 +546,35 @@ body {
 .log-table tr:hover td {
   background: rgba(255, 255, 255, 0.02);
 }
+
+/* バッジスタイル */
+.badge-plan-sprint {
+  background: rgba(212, 175, 55, 0.22);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-light);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-plan-free {
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38BDF8;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.badge-tokyo { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
+.badge-kyoto { background: rgba(212, 175, 55, 0.15); color: #F3E5AB; }
+.badge-osaka { background: rgba(167, 139, 250, 0.15); color: #C4B5FD; }
+.badge-abroad { background: rgba(52, 211, 153, 0.15); color: #6EE7B7; }
 
 .badge-tag {
   display: inline-block;
@@ -468,28 +584,20 @@ body {
   font-weight: 600;
 }
 
-.badge-tokyo { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
-.badge-kyoto { background: rgba(212, 175, 55, 0.15); color: #F3E5AB; }
-.badge-osaka { background: rgba(167, 139, 250, 0.15); color: #C4B5FD; }
-.badge-abroad { background: rgba(52, 211, 153, 0.15); color: #6EE7B7; }
-
-.action-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.status-badge-lead {
+  display: inline-block;
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--accent-green);
 }
-
-.action-book { background: rgba(212, 175, 55, 0.2); color: var(--accent-gold-light); font-weight: 700; }
-.action-pdf { background: rgba(56, 189, 248, 0.2); color: #38BDF8; }
-.action-view { background: rgba(255, 255, 255, 0.05); color: #94A3B8; }
 
 @media (max-width: 900px) {
   .charts-grid { grid-template-columns: 1fr; }
-  .admin-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .header-right { width: 100%; justify-content: space-between; }
+  .admin-header { flex-direction: column; align-items: flex-start; }
+  .control-banner { flex-direction: column; align-items: flex-start; }
   .log-table { display: block; overflow-x: auto; }
 }
 </style>
@@ -500,7 +608,7 @@ body {
 <div id="loginOverlay">
   <div class="login-card">
     <div class="login-logo mincho">和魂洋才</div>
-    <div class="login-sub">管理者専用アナリティクスダッシュボード</div>
+    <div class="login-sub">管理者専用アナリティクス & 予約管理ダッシュボード</div>
     <form id="loginForm" onsubmit="handleLogin(event)">
       <input type="password" id="pinInput" class="pin-input" placeholder="PINコード (4桁)" maxlength="8" autofocus required>
       <button type="submit" class="btn-login">ダッシュボードを開く</button>
@@ -513,9 +621,12 @@ body {
 <header class="admin-header">
   <div class="header-left">
     <div class="brand-badge mincho">和魂洋才</div>
-    <div class="header-title">アクセス解析 & 事業拡大インサイト</div>
+    <div class="header-title">総合管理・予約台帳 & アクセス解析</div>
   </div>
   <div class="header-right">
+    <button class="btn-pill btn-excel" onclick="exportAllExcel()">
+      <span>📥</span> 全データをExcel (CSV) 出力
+    </button>
     <a href="index.html" target="_blank" class="btn-pill">
       <span>↗</span> 公開サイトを見る
     </a>
@@ -530,10 +641,31 @@ body {
 
 <div class="container">
 
+  <!-- 🎛️ 予約受付ステータスコントローラー -->
+  <div class="control-banner">
+    <div class="control-left">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">現在の公開サイト予約受付状況</div>
+        <div id="statusIndicatorBox" class="status-indicator status-open">
+          <span class="status-dot"></span>
+          <span id="statusIndicatorText">● 予約受付中（全枠オープン）</span>
+        </div>
+      </div>
+      <div style="font-size: 0.82rem; color: #CBD5E1; max-width: 460px; line-height: 1.5;">
+        ※「一時停止」に切り替えると、公開サイト側のフォームに「今月分は満席」の案内が自動表示され、新規の受付がストップします。
+      </div>
+    </div>
+    <div class="control-right">
+      <button id="toggleStatusBtn" class="btn-toggle-status btn-close-action" onclick="toggleBookingStatus()">
+        ⏸ 予約受付を一時停止（満席に設定）
+      </button>
+    </div>
+  </div>
+
   <!-- 💡 今後事業を拡大するためのAI分析インサイト -->
   <section class="insight-banner">
     <div class="insight-header">
-      <span class="insight-icon">💡</span>
+      <span style="font-size: 1.25rem;">💡</span>
       <h2 class="insight-title mincho">今後の事業拡大に向けたデータ示唆（インサイト）</h2>
     </div>
     <div class="insight-grid">
@@ -552,17 +684,41 @@ body {
         </div>
       </div>
       <div class="insight-item">
-        <div class="insight-tag">検討深度・成約シグナル</div>
+        <div class="insight-tag">プラン申込・成約動向</div>
         <div class="insight-text">
-          提案書PDF（銀座 稲葉様の実例）の閲覧率は<strong>全アクセスの22.4%</strong>と極めて高い関心を集めています。<br>
-          👉 <strong>「銀座の名店での実物ポケットガイド」の存在が最も強力なフック</strong>になっています。
+          全14件の予約中、<strong>3件（21.4%）が「おもてなし英語導入スプリント（40万円）」への直接申込</strong>です。<br>
+          👉 <strong>無料相談を挟まずに即導入を希望する顧客が存在</strong>するため、限定枠の希少性をアピールすることが受注速度を加速させます。
         </div>
       </div>
     </div>
   </section>
 
-  <!-- KPIサマリーカード -->
+  <!-- KPIサマリーカード（プラン分別） -->
   <div class="kpi-grid">
+    <div class="kpi-card kpi-card-featured">
+      <div class="kpi-label">
+        <span>無料相談 予約数</span>
+        <span>☕</span>
+      </div>
+      <div class="kpi-value outfit" style="color: var(--accent-blue);" id="kpiFreeCount">11</div>
+      <div class="kpi-trend">
+        <span class="trend-up">15分オンライン相談</span>
+        <span class="trend-sub">リード顧客</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card-featured">
+      <div class="kpi-label">
+        <span>導入スプリント 予約数</span>
+        <span>🔥</span>
+      </div>
+      <div class="kpi-value outfit" style="color: var(--accent-gold);" id="kpiSprintCount">3</div>
+      <div class="kpi-trend">
+        <span class="trend-up" style="color: var(--accent-gold-light);">40万円プラン申込</span>
+        <span class="trend-sub">想定売上 120万円</span>
+      </div>
+    </div>
+
     <div class="kpi-card">
       <div class="kpi-label">
         <span>総アクセス数 (PV)</span>
@@ -583,7 +739,7 @@ body {
       <div class="kpi-value outfit" id="kpiUu">612</div>
       <div class="kpi-trend">
         <span class="trend-up">↑ +18.2%</span>
-        <span class="trend-sub">高級飲食・旅館関係者中心</span>
+        <span class="trend-sub">高級飲食・旅館</span>
       </div>
     </div>
 
@@ -595,24 +751,46 @@ body {
       <div class="kpi-value outfit" id="kpiPdf">320</div>
       <div class="kpi-trend">
         <span class="trend-up" style="color: var(--accent-gold-light);">閲覧率 22.4%</span>
-        <span class="trend-sub">高関心リード</span>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-label">
-        <span>相談予約完了 (CV)</span>
-        <span>📅</span>
-      </div>
-      <div class="kpi-value outfit" id="kpiCv" style="color: var(--accent-gold);">14</div>
-      <div class="kpi-trend">
-        <span class="trend-up">CVR 2.28%</span>
-        <span class="trend-sub">（高単価40万商材で高水準）</span>
+        <span class="trend-sub">高関心層</span>
       </div>
     </div>
   </div>
 
-  <!-- チャートグリッド 1: 日別推移 ＆ 時間帯別分布 -->
+  <!-- 📋 予約・顧客台帳テーブル（新設） -->
+  <div class="table-card">
+    <div class="table-header-row">
+      <div>
+        <h3 class="chart-title">【予約台帳】15分無料相談 ＆ 導入スプリントお申込み一覧</h3>
+        <div class="chart-subtitle">予約種別、店舗名、ご連絡先、ご希望日時、相談内容</div>
+      </div>
+      <div class="table-actions">
+        <button class="btn-pill btn-excel" onclick="exportBookingsExcel()">
+          <span>📥</span> 予約台帳をExcel出力
+        </button>
+        <input type="text" id="bookingSearch" class="search-input" placeholder="🔍 店舗名・お名前で検索..." oninput="filterBookings()">
+      </div>
+    </div>
+
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>受付日時</th>
+          <th>予約種別 (プラン)</th>
+          <th>店舗名 / 宿名</th>
+          <th>ご担当者様</th>
+          <th>連絡先 (メール / 電話)</th>
+          <th>ご希望相談日時</th>
+          <th>形式</th>
+          <th>対応ステータス</th>
+        </tr>
+      </thead>
+      <tbody id="bookingTableBody">
+        <!-- 動的挿入 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- チャートグリッド 1: 時間帯別分布 ＆ 予約種別・ロケーション -->
   <div class="charts-grid">
     <div class="chart-card">
       <div class="chart-header">
@@ -629,12 +807,12 @@ body {
     <div class="chart-card">
       <div class="chart-header">
         <div>
-          <h3 class="chart-title">アクセス元 地域・都市（Location）</h3>
-          <div class="chart-subtitle">主要商圏のシェア</div>
+          <h3 class="chart-title">予約種別・比率内訳</h3>
+          <div class="chart-subtitle">無料相談 vs 導入スプリント</div>
         </div>
       </div>
       <div class="chart-container">
-        <canvas id="locationDonutChart"></canvas>
+        <canvas id="planDonutChart"></canvas>
       </div>
     </div>
   </div>
@@ -683,9 +861,14 @@ body {
     <div class="table-header-row">
       <div>
         <h3 class="chart-title">最新リアルタイム・アクセスログ</h3>
-        <div class="chart-subtitle">アクセス元Location、閲覧時刻、滞在・アクション履歴</div>
+        <div class="chart-subtitle">アクセス元Location、閲覧時刻、端末、行動履歴</div>
       </div>
-      <input type="text" id="logSearch" class="search-input" placeholder="🔍 地域・デバイスで絞り込み..." oninput="filterLogs()">
+      <div class="table-actions">
+        <button class="btn-pill btn-excel" onclick="exportAccessLogsExcel()">
+          <span>📥</span> アクセスログをExcel出力
+        </button>
+        <input type="text" id="logSearch" class="search-input" placeholder="🔍 地域・デバイスで絞り込み..." oninput="filterLogs()">
+      </div>
     </div>
 
     <table class="log-table">
@@ -737,19 +920,112 @@ function logout() {
   location.reload();
 }
 
-// 蓄積されたローカルログとシミュレーションデータの結合
+// 🎛️ 予約受付ステータス管理
+function renderBookingStatus() {
+  const currentStatus = localStorage.getItem('wakonyosai_booking_status') || 'open';
+  const indicatorBox = document.getElementById('statusIndicatorBox');
+  const indicatorText = document.getElementById('statusIndicatorText');
+  const toggleBtn = document.getElementById('toggleStatusBtn');
+
+  if (currentStatus === 'closed') {
+    indicatorBox.className = "status-indicator status-closed";
+    indicatorText.innerText = "⏸ 予約受付一時停止中（満席設定）";
+    toggleBtn.className = "btn-toggle-status btn-open-action";
+    toggleBtn.innerText = "▶ 予約受付を再開する（オープン）";
+  } else {
+    indicatorBox.className = "status-indicator status-open";
+    indicatorText.innerText = "● 予約受付中（全枠オープン）";
+    toggleBtn.className = "btn-toggle-status btn-close-action";
+    toggleBtn.innerText = "⏸ 予約受付を一時停止（満席に設定）";
+  }
+}
+
+function toggleBookingStatus() {
+  const currentStatus = localStorage.getItem('wakonyosai_booking_status') || 'open';
+  if (currentStatus === 'open') {
+    if (confirm("予約受付を一時停止（満席表示）にしますか？\n公開サイト上のフォームに満席案内が表示され、新規予約が制限されます。")) {
+      localStorage.setItem('wakonyosai_booking_status', 'closed');
+      renderBookingStatus();
+    }
+  } else {
+    if (confirm("予約受付を再開しますか？\n公開サイト上で再び予約・相談ができるようになります。")) {
+      localStorage.setItem('wakonyosai_booking_status', 'open');
+      renderBookingStatus();
+    }
+  }
+}
+
+// 予約顧客台帳データ
+function getBookingLeads() {
+  const localLeads = JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
+  
+  const baseLeads = [
+    { date: "2026/10/22 09:30", planType: "おもてなし英語導入スプリント申込", storeName: "祇園 割烹 〇〇", name: "村田 宗一郎 様 (若旦那)", email: "murata@gion-kappo.jp", phone: "075-531-XXXX", dateTime: "2026/10/25 15:00", format: "オンライン（Zoom）", message: "来季のインバウンド強化に向け、全コースの英語解説とポケットガイド制作を依頼したい。", status: "商談中" },
+    { date: "2026/10/21 15:20", planType: "おもてなし英語導入スプリント申込", storeName: "銀座 懐石 〇〇", name: "高橋 賢二 様 (総支配人)", email: "takahashi@ginza-kaiseki.com", phone: "03-3571-XXXX", dateTime: "2026/10/26 15:30", format: "対面ご訪問（銀座・麻布限定）", message: "稲葉様の事例を拝見しました。ホールスタッフと板前の英会話ロールプレイングを導入したいです。", status: "受注確定" },
+    { date: "2026/10/20 16:40", planType: "おもてなし英語導入スプリント申込", storeName: "赤坂 鮨 〇〇", name: "佐藤 慎太郎 様 (大将)", email: "sato@akasaka-sushi.jp", phone: "03-3585-XXXX", dateTime: "2026/10/27 16:00", format: "対面ご訪問（銀座・麻布限定）", message: "魚の旬や仕込みのこだわりを英語で伝えられるようにしたい。", status: "商談中" },
+    { date: "2026/10/22 10:15", planType: "15分無料オンライン相談", storeName: "麻布十番 炭火割烹 〇〇", name: "鈴木 大地 様", email: "suzuki@azabu-sumibi.jp", phone: "03-5442-XXXX", dateTime: "2026/10/24 15:00", format: "オンライン（Zoom）", message: "まず導入の進め方や現場スタッフの負担感について相談したい。", status: "新規受付" },
+    { date: "2026/10/21 18:00", planType: "15分無料オンライン相談", storeName: "日本橋 鰻 〇〇", name: "小林 誠司 様", email: "kobayashi@nihonbashi-unagi.com", phone: "03-3241-XXXX", dateTime: "2026/10/24 16:30", format: "オンライン（Zoom）", message: "タレの歴史や炭火焼きの技法の伝え方について相談希望。", status: "完了" },
+    { date: "2026/10/20 14:10", planType: "15分無料オンライン相談", storeName: "六本木 日本料理 〇〇", name: "渡辺 健一 様", email: "watanabe@roppongi-washoku.com", phone: "03-5770-XXXX", dateTime: "2026/10/23 15:00", format: "対面ご訪問（銀座・麻布限定）", message: "外国人客比率が4割を超えており、オペレーション改善を相談したい。", status: "完了" }
+  ];
+
+  return [...localLeads, ...baseLeads];
+}
+
+let allLeads = [];
+
+function renderBookings(leads) {
+  const tbody = document.getElementById('bookingTableBody');
+  tbody.innerHTML = leads.map(l => {
+    const isSprint = l.planType.includes("スプリント");
+    const badgeClass = isSprint ? "badge-plan-sprint" : "badge-plan-free";
+    const icon = isSprint ? "🔥" : "☕";
+
+    return `
+      <tr>
+        <td class="outfit" style="color: #94A3B8;">${l.date}</td>
+        <td><span class="${badgeClass}">${icon} ${l.planType}</span></td>
+        <td style="font-weight: 600; color: #FFF;">${l.storeName}</td>
+        <td>${l.name}</td>
+        <td style="font-size: 0.8rem; color: #CBD5E1;">
+          <div>✉ ${l.email}</div>
+          <div>☎ ${l.phone}</div>
+        </td>
+        <td class="outfit" style="color: var(--accent-gold-light); font-weight: 600;">${l.dateTime}</td>
+        <td style="font-size: 0.8rem;">${l.format}</td>
+        <td><span class="status-badge-lead">${l.status}</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  // カウント更新
+  const sprintCount = leads.filter(l => l.planType.includes("スプリント")).length;
+  const freeCount = leads.filter(l => !l.planType.includes("スプリント")).length;
+  document.getElementById('kpiSprintCount').innerText = sprintCount;
+  document.getElementById('kpiFreeCount').innerText = freeCount;
+}
+
+function filterBookings() {
+  const query = document.getElementById('bookingSearch').value.toLowerCase();
+  const filtered = allLeads.filter(l => 
+    l.storeName.toLowerCase().includes(query) ||
+    l.name.toLowerCase().includes(query) ||
+    l.planType.toLowerCase().includes(query) ||
+    l.email.toLowerCase().includes(query)
+  );
+  renderBookings(filtered);
+}
+
+// アクセスログデータ
 function getAccessLogs() {
   const localLogs = JSON.parse(localStorage.getItem('wakonyosai_real_logs') || '[]');
-  
-  // 今後の事業分析用リアルデータセット（銀座・麻布・京都・海外等の飲食経営者アクセスモデル）
   const baseLogs = [
     { time: "2026/10/22 11:18", loc: "東京都中央区 (銀座)", badge: "badge-tokyo", device: "iPhone (Safari)", ref: "Direct / QRコード", action: "哲学・意図セクション精読", persona: "割烹オーナー" },
     { time: "2026/10/22 10:45", loc: "東京都港区 (六本木)", badge: "badge-tokyo", device: "Mac (Chrome)", ref: "Google検索「日本料理 英語 接客」", action: "PDFサンプル閲覧 (稲葉様)", persona: "高級鮨店 総支配人" },
-    { time: "2026/10/22 09:30", loc: "京都府京都市 (東山区/祇園)", badge: "badge-kyoto", device: "iPad (Safari)", ref: "知人からの紹介リンク", action: "15分無料相談 予約完了", persona: "老舗旅館 若旦那" },
+    { time: "2026/10/22 09:30", loc: "京都府京都市 (東山区/祇園)", badge: "badge-kyoto", device: "iPad (Safari)", ref: "知人からの紹介リンク", action: "導入スプリント申込完了", persona: "老舗旅館 若旦那" },
     { time: "2026/10/22 01:15", loc: "東京都千代田区 (丸の内)", badge: "badge-tokyo", device: "iPhone (Safari)", ref: "Instagramプロフィール", action: "料金・指導メソッド確認", persona: "日本料理店 料理長" },
     { time: "2026/10/21 23:40", loc: "大阪府大阪市 (北区/北新地)", badge: "badge-osaka", device: "Android (Chrome)", ref: "Direct / ブックマーク", action: "PDFサンプル閲覧", persona: "和食グループ 経営者" },
     { time: "2026/10/21 16:10", loc: "東京都中央区 (日本橋)", badge: "badge-tokyo", device: "Mac (Safari)", ref: "Facebook投稿", action: "ページ全体精読 (滞在4分)", persona: "インバウンド担当マネージャー" },
-    { time: "2026/10/21 15:20", loc: "京都府京都市 (中京区)", badge: "badge-kyoto", device: "iPhone (Safari)", ref: "Google検索", action: "15分無料相談 予約完了", persona: "懐石料理店 女将" },
+    { time: "2026/10/21 15:20", loc: "京都府京都市 (中京区)", badge: "badge-kyoto", device: "iPhone (Safari)", ref: "Google検索", action: "導入スプリント申込完了", persona: "懐石料理店 女将" },
     { time: "2026/10/21 14:45", loc: "東京都港区 (南青山)", badge: "badge-tokyo", device: "iPhone (Safari)", ref: "Direct", action: "哲学・意図セクション精読", persona: "ミシュラン星付き店 オーナーシェフ" },
     { time: "2026/10/21 12:05", loc: "米国ニューヨーク (New York)", badge: "badge-abroad", device: "Mac (Chrome)", ref: "LinkedIn", action: "トップ・実績閲覧", persona: "海外展開プロデューサー" },
     { time: "2026/10/20 22:30", loc: "東京都新宿区 (神楽坂)", badge: "badge-tokyo", device: "Windows (Edge)", ref: "Google検索", action: "PDFサンプル閲覧", persona: "会席割烹 店主" }
@@ -762,22 +1038,16 @@ let allLogs = [];
 
 function renderLogs(logs) {
   const tbody = document.getElementById('logTableBody');
-  tbody.innerHTML = logs.map(l => {
-    let actionClass = "action-view";
-    if (l.action.includes("予約")) actionClass = "action-book";
-    else if (l.action.includes("PDF")) actionClass = "action-pdf";
-
-    return `
-      <tr>
-        <td class="outfit" style="color: #94A3B8;">${l.time}</td>
-        <td><span class="badge-tag ${l.badge || 'badge-tokyo'}">${l.loc}</span></td>
-        <td>${l.device}</td>
-        <td style="color: #CBD5E1;">${l.ref}</td>
-        <td><span class="action-badge ${actionClass}">${l.action}</span></td>
-        <td style="color: var(--accent-gold-light); font-weight: 500;">${l.persona}</td>
-      </tr>
-    `;
-  }).join('');
+  tbody.innerHTML = logs.map(l => `
+    <tr>
+      <td class="outfit" style="color: #94A3B8;">${l.time}</td>
+      <td><span class="badge-tag ${l.badge || 'badge-tokyo'}">${l.loc}</span></td>
+      <td>${l.device}</td>
+      <td style="color: #CBD5E1;">${l.ref}</td>
+      <td><span style="color: var(--accent-gold-light); font-weight: 500;">${l.action}</span></td>
+      <td style="color: var(--accent-gold-light); font-weight: 500;">${l.persona}</td>
+    </tr>
+  `).join('');
 }
 
 function filterLogs() {
@@ -789,6 +1059,60 @@ function filterLogs() {
     l.action.toLowerCase().includes(query)
   );
   renderLogs(filtered);
+}
+
+// 📥 Excel (CSV / UTF-8 BOM付き) 出力機能
+function downloadCSV(csvContent, fileName) {
+  // UTF-8 BOM（\uFEFF）を付与してExcelでの文字化けを防止
+  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function exportBookingsExcel() {
+  const headers = ["受付日時", "予約種別(プラン)", "店舗名/宿名", "ご担当者様名", "メールアドレス", "電話番号", "ご希望日時", "相談形式", "ご相談内容", "ステータス"];
+  const rows = allLeads.map(l => [
+    `"${l.date}"`,
+    `"${l.planType}"`,
+    `"${l.storeName}"`,
+    `"${l.name}"`,
+    `"${l.email}"`,
+    `"${l.phone}"`,
+    `"${l.dateTime}"`,
+    `"${l.format}"`,
+    `"${(l.message || '').replace(/"/g, '""')}"`,
+    `"${l.status}"`
+  ]);
+
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+  downloadCSV(csv, `和魂洋才_予約顧客台帳_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function exportAccessLogsExcel() {
+  const headers = ["アクセス時刻", "アクセス元Location", "端末OS", "流入元(Referrer)", "閲覧行動/アクション", "推定ユーザー像"];
+  const rows = allLogs.map(l => [
+    `"${l.time}"`,
+    `"${l.loc}"`,
+    `"${l.device}"`,
+    `"${l.ref}"`,
+    `"${l.action}"`,
+    `"${l.persona}"`
+  ]);
+
+  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+  downloadCSV(csv, `和魂洋才_アクセス解析ログ_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function exportAllExcel() {
+  exportBookingsExcel();
+  setTimeout(() => {
+    exportAccessLogsExcel();
+  }, 500);
 }
 
 function initRankList() {
@@ -816,12 +1140,11 @@ function initRankList() {
 }
 
 function initCharts() {
-  // Chart.js のダークテーマ共通設定
   Chart.defaults.color = '#94A3B8';
   Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
   Chart.defaults.font.family = "'Inter', sans-serif";
 
-  // 1. 時間帯別アクセス分布（飲食店関係者のリズム）
+  // 1. 時間帯別アクセス分布
   const ctxHourly = document.getElementById('hourlyChart').getContext('2d');
   new Chart(ctxHourly, {
     type: 'bar',
@@ -832,7 +1155,7 @@ function initCharts() {
         data: [42, 12, 4, 8, 28, 64, 88, 168, 194, 182, 92, 54, 76, 178, 134],
         backgroundColor: function(context) {
           const val = context.raw;
-          if (val > 150) return '#D4AF37'; // ピーク時ゴールド
+          if (val > 150) return '#D4AF37';
           return 'rgba(56, 189, 248, 0.6)';
         },
         borderRadius: 4
@@ -841,32 +1164,20 @@ function initCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            afterLabel: function(context) {
-              if (context.raw > 150) return '⭐ 仕込み・営業後ピーク時間帯（アプローチ推奨）';
-              return '';
-            }
-          }
-        }
-      },
-      scales: {
-        y: { beginAtZero: true }
-      }
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
     }
   });
 
-  // 2. 地域別シェア（ドーナツ）
-  const ctxLoc = document.getElementById('locationDonutChart').getContext('2d');
-  new Chart(ctxLoc, {
+  // 2. 予約種別の内訳ドーナツチャート（新設）
+  const ctxPlan = document.getElementById('planDonutChart').getContext('2d');
+  new Chart(ctxPlan, {
     type: 'doughnut',
     data: {
-      labels: ['東京（銀座/港区/中央）', '京都（祇園/東山）', '大阪（北新地）', '海外', 'その他国内'],
+      labels: ['15分無料オンライン相談 (11件)', '導入スプリント申込 (3件)'],
       datasets: [{
-        data: [61.4, 17.4, 11.3, 5.9, 4.0],
-        backgroundColor: ['#D4AF37', '#38BDF8', '#A78BFA', '#34D399', '#64748B'],
+        data: [11, 3],
+        backgroundColor: ['#38BDF8', '#D4AF37'],
         borderWidth: 0
       }]
     },
@@ -874,13 +1185,13 @@ function initCharts() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } }
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
       },
-      cutout: '68%'
+      cutout: '65%'
     }
   });
 
-  // 3. 日別推移（ラインチャート）
+  // 3. 日別推移
   const ctxDaily = document.getElementById('dailyChart').getContext('2d');
   new Chart(ctxDaily, {
     type: 'line',
@@ -904,7 +1215,7 @@ function initCharts() {
     }
   });
 
-  // 4. 流入元チャネル（横棒グラフ）
+  // 4. 流入元チャネル
   const ctxRef = document.getElementById('referrerChart').getContext('2d');
   new Chart(ctxRef, {
     type: 'bar',
@@ -930,11 +1241,17 @@ function initCharts() {
 function refreshData() {
   allLogs = getAccessLogs();
   renderLogs(allLogs);
-  alert("最新のアクセスデータに更新しました。");
+  allLeads = getBookingLeads();
+  renderBookings(allLeads);
+  renderBookingStatus();
+  alert("最新の予約・アクセスデータに更新しました。");
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   checkAuth();
+  renderBookingStatus();
+  allLeads = getBookingLeads();
+  renderBookings(allLeads);
   allLogs = getAccessLogs();
   renderLogs(allLogs);
   initRankList();

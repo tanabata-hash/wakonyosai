@@ -1115,7 +1115,7 @@ footer {
         <li><span class="phrase">お支払い：契約時50%（着手金） / 完了時50%の安心2分割</span></li>
       </ul>
 
-      <a href="#booking" class="btn-primary" style="display: block; width: 100%;">このプランで無料相談を予約する</a>
+      <a href="#booking" onclick="selectPlan('sprint')" class="btn-primary" style="display: block; width: 100%;">このプラン（導入スプリント）を予約・相談する</a>
     </div>
   </div>
 </section>
@@ -1126,8 +1126,8 @@ footer {
     <div class="section-title-wrap">
       <span class="section-label">RESERVATION</span>
       <h2 class="section-title mincho">
-        <span class="phrase">15分オンライン無料相談</span>
-        <span class="phrase">ご予約</span>
+        <span class="phrase">お打ち合わせ・ご相談</span>
+        <span class="phrase">予約</span>
       </h2>
       <p style="color: var(--text-muted); margin-top: 12px;">
         <span class="phrase">稲葉様の実物サンプル画面をお見せしながら</span>
@@ -1137,8 +1137,32 @@ footer {
       </p>
     </div>
 
+    <!-- 受付一時停止中の案内バナー（アドミン連動） -->
+    <div id="bookingClosedNotice" style="display: none; background: rgba(248, 113, 113, 0.15); border: 1px solid #F87171; border-radius: 8px; padding: 20px 24px; margin-bottom: 24px; text-align: center; color: #FECACA;">
+      <h3 style="color: #F87171; font-size: 1.15rem; margin-bottom: 8px;" class="mincho">【現在、今月分の枠は満席のため受付を一時停止しております】</h3>
+      <p style="font-size: 0.9rem; line-height: 1.7;">
+        大変ご好評につき、今月の現場指導枠・スプリント枠は満席となりました。<br>
+        次回募集時の優先案内をご希望の場合は、以下のフォームよりメッセージをお送りいただけます。
+      </p>
+    </div>
+
     <div class="booking-box">
       <form id="bookingForm">
+        <!-- 予約種別の選択 -->
+        <div class="form-group" style="margin-bottom: 24px; background: rgba(18, 24, 36, 0.6); padding: 16px 20px; border-radius: 8px; border: 1px solid var(--border-gold);">
+          <label class="form-label" style="color: var(--accent-gold-light); font-weight: 700;">ご希望の予約種別 <span>*</span></label>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
+              <input type="radio" name="plan_type" id="planFree" value="15分無料オンライン相談" checked style="accent-color: var(--accent-gold);">
+              <span>15分無料オンライン相談（課題相談・導入イメージ共有）</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
+              <input type="radio" name="plan_type" id="planSprint" value="おもてなし英語導入スプリント申込" style="accent-color: var(--accent-gold);">
+              <span>おもてなし英語導入スプリント申込（最短2週間・40万円プラン）</span>
+            </label>
+          </div>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">店舗名 / 宿名 <span>*</span></label>
@@ -1314,10 +1338,47 @@ function recordAnalyticsEvent(actionName, customLoc) {
   }
 }
 
-// ページ読み込み時の記録（初回PV）
+// 予約種別切り替え
+function selectPlan(plan) {
+  if (plan === 'sprint') {
+    const radio = document.getElementById('planSprint');
+    if (radio) radio.checked = true;
+  } else {
+    const radio = document.getElementById('planFree');
+    if (radio) radio.checked = true;
+  }
+}
+
+// 受付状態チェック（アドミン連動）
+function checkBookingStatus() {
+  const status = localStorage.getItem('wakonyosai_booking_status');
+  const notice = document.getElementById('bookingClosedNotice');
+  const submitBtn = document.getElementById('submitBtn');
+  if (status === 'closed') {
+    if (notice) notice.style.display = 'block';
+    if (submitBtn) {
+      submitBtn.innerText = "次回募集の優先案内を希望する";
+      submitBtn.style.background = "linear-gradient(135deg, #64748B 0%, #475569 100%)";
+    }
+  } else {
+    if (notice) notice.style.display = 'none';
+    if (submitBtn) {
+      submitBtn.innerText = "相談日時を確定して予約する";
+      submitBtn.style.background = "";
+    }
+  }
+}
+
+// ページ読み込み時の記録（初回PV）とステータス初期化
 window.addEventListener('load', () => {
+  checkBookingStatus();
   recordAnalyticsEvent("トップページ閲覧");
   
+  // URLハッシュやパラメータ判定
+  if (window.location.hash.includes('sprint') || window.location.search.includes('sprint')) {
+    selectPlan('sprint');
+  }
+
   // PDFリンククリックの追跡
   document.querySelectorAll('a[href*=".pdf"]').forEach(link => {
     link.addEventListener('click', () => {
@@ -1334,6 +1395,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
 
   const formData = new FormData(this);
   const data = Object.fromEntries(formData.entries());
+  const planType = data.plan_type || "15分無料オンライン相談";
 
   // 日時の計算（45分枠）
   const [year, month, day] = (data.date || "").split('-').map(Number);
@@ -1342,8 +1404,8 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   const startDt = new Date(year, (month || 1) - 1, day || 1, hour || 15, minute || 0, 0);
   const endDt = new Date(startDt.getTime() + 45 * 60 * 1000);
 
-  const title = `【相談予約】${data.store_name} 様 (${data.name} 様) - 料理と文化を伝えるおもてなし英語`;
-  const description = `店舗名: ${data.store_name}\nお名前: ${data.name} 様\nメール: ${data.email}\nお電話: ${data.phone}\nご希望形式: ${data.format}\nご相談内容:\n${data.message || '特になし'}`;
+  const title = `【${planType}】${data.store_name} 様 (${data.name} 様) - 料理と文化を伝えるおもてなし英語`;
+  const description = `ご希望プラン: ${planType}\n店舗名: ${data.store_name}\nお名前: ${data.name} 様\nメール: ${data.email}\nお電話: ${data.phone}\nご希望形式: ${data.format}\nご相談内容:\n${data.message || '特になし'}`;
 
   // 1. GoogleカレンダーURL生成
   const gStart = formatGoogleDate(startDt);
@@ -1378,6 +1440,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
       },
       body: JSON.stringify({
         _subject: title,
+        "ご希望プラン": planType,
         "店舗・宿名": data.store_name,
         "お名前": data.name,
         "メールアドレス": data.email,
@@ -1391,12 +1454,31 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     console.warn("メール通知リクエストの送信を試みました:", err);
   }
 
-  // アナリティクスに予約完了イベントを記録
-  recordAnalyticsEvent(`15分無料相談 予約完了 (${data.store_name}様)`, data.store_name);
+  // アナリティクス＆顧客台帳に予約完了イベントを記録
+  recordAnalyticsEvent(`予約完了: ${planType} (${data.store_name}様)`, data.store_name);
+
+  // 顧客台帳への保存（アドミン画面連動）
+  try {
+    const existingLeads = JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
+    const newLead = {
+      date: new Date().toLocaleString('ja-JP'),
+      planType: planType,
+      storeName: data.store_name,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      dateTime: `${data.date} ${data.time}`,
+      format: data.format,
+      message: data.message || "特になし",
+      status: "新規受付"
+    };
+    existingLeads.unshift(newLead);
+    localStorage.setItem('wakonyosai_booking_leads', JSON.stringify(existingLeads));
+  } catch(e) {}
 
   // 4. 完了モーダルの表示
   document.getElementById('modalMsg').innerHTML = `
-    <strong>${data.store_name} 様</strong> のご相談予約を受け付けました。<br>
+    <strong>${data.store_name} 様</strong> の【${planType}】を受け付けました。<br>
     【日時】${data.date} ${data.time} 〜<br><br>
     管理者宛てに予約通知を送信いたしました。<br>
     以下のボタンからカレンダーに予定をご追加いただけます。
