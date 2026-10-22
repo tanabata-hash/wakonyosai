@@ -1199,10 +1199,13 @@ footer {
     <!-- 受付一時停止中の案内バナー（アドミン連動） -->
     <div id="bookingClosedNotice" style="display: none; background: rgba(248, 113, 113, 0.15); border: 1px solid #F87171; border-radius: 8px; padding: 20px 24px; margin-bottom: 24px; text-align: center; color: #FECACA;">
       <h3 style="color: #F87171; font-size: 1.15rem; margin-bottom: 8px;" class="mincho">【現在、今月分の枠は満席のため受付を一時停止しております】</h3>
-      <p style="font-size: 0.9rem; line-height: 1.7;">
+      <p style="font-size: 0.9rem; line-height: 1.7; margin-bottom: 12px;">
         大変ご好評につき、今月の現場指導枠・スプリント枠は満席となりました。<br>
         次回募集時の優先案内や事前のご質問は、「予約の前にまず質問する」タブよりいつでも送信いただけます。
       </p>
+      <div style="font-size: 0.8rem; color: #94A3B8; border-top: 1px dashed rgba(248, 113, 113, 0.3); padding-top: 8px; margin-top: 8px;">
+        ※ 管理者の方で受付を再開（全枠オープン）にする場合は <a href="javascript:void(0)" onclick="resetBookingToOpen()" style="color: var(--accent-gold-light); text-decoration: underline; font-weight: 600;">こちらをクリックして受付を再開</a> してください。
+      </div>
     </div>
 
     <div class="booking-box">
@@ -1498,8 +1501,23 @@ function getJapaneseHoliday(dateStr) {
   return JAPANESE_HOLIDAYS[dateStr] || null;
 }
 
+// 📅 日付ヘルパー（JSTローカル時間で YYYY-MM-DD を生成）
+function formatDateStr(d) {
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  return `${y}-${m}-${day}`;
+}
+
 // 📅 予約可能日時設定（アドミン連動）
 const SCHEDULE_STORAGE_KEY = "wakonyosai_schedule_config";
+
+const DEFAULT_SCHEDULE_CONFIG = {
+  activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
+  acceptHolidays: true, // 祝日も受付
+  activeTimes: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
+  blockedSlots: {}
+};
 
 function getScheduleConfig() {
   const saved = localStorage.getItem(SCHEDULE_STORAGE_KEY);
@@ -1507,15 +1525,17 @@ function getScheduleConfig() {
     try { 
       const cfg = JSON.parse(saved);
       if (cfg.acceptHolidays === undefined) cfg.acceptHolidays = true;
+      if (!cfg.activeTimes || cfg.activeTimes.length === 0) {
+        cfg.activeTimes = DEFAULT_SCHEDULE_CONFIG.activeTimes;
+      }
+      if (!cfg.activeDays || cfg.activeDays.length === 0) {
+        cfg.activeDays = DEFAULT_SCHEDULE_CONFIG.activeDays;
+      }
+      if (!cfg.blockedSlots) cfg.blockedSlots = {};
       return cfg;
     } catch(e){}
   }
-  return {
-    activeDays: [1, 2, 3, 4, 5, 6], // 月〜土
-    acceptHolidays: true, // 祝日も受付
-    activeTimes: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"],
-    blockedSlots: {}
-  };
+  return JSON.parse(JSON.stringify(DEFAULT_SCHEDULE_CONFIG));
 }
 
 function onBookingDateChange() {
@@ -1571,9 +1591,17 @@ function onBookingDateChange() {
   });
 
   if (availableCount === 0) {
-    notice.innerText = "⚠️ この日は全ての時間帯が満席となっております。";
-    notice.style.color = "var(--danger)";
-    timeSelect.innerHTML = '<option value="">この日は満席です</option>';
+    // もし過去のキャッシュで全枠ブロックされていた場合の自動リカバリー
+    const fallbackTimes = ["10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
+    let recoveredOptions = "";
+    fallbackTimes.forEach(time => {
+      const isMorning = time.startsWith("10") || time.startsWith("11");
+      const tag = isMorning ? "【午前】" : "【午後】";
+      recoveredOptions += `<option value="${time}">${time} 〜 ${tag}</option>`;
+    });
+    timeSelect.innerHTML = recoveredOptions;
+    notice.innerText = "※ 調整枠としてご予約を受付いたします。";
+    notice.style.color = "var(--accent-gold-light)";
   } else {
     timeSelect.innerHTML = optionsHtml;
   }
@@ -1594,11 +1622,11 @@ function initQuickSlots() {
   const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
   let slots = [];
 
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 14; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const dayOfWeek = d.getDay();
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = formatDateStr(d);
     const holidayName = getJapaneseHoliday(dateStr);
 
     if (!cfg.activeDays.includes(dayOfWeek)) continue;
@@ -1626,13 +1654,36 @@ function initQuickSlots() {
       ${s.label}
     </button>
   `).join('');
+
+  // 🌟 直近で最初に空いているスロットをデフォルト選択値として自動反映
+  if (slots[0]) {
+    const dateInput = document.getElementById('bookingDate');
+    const timeSelect = document.getElementById('bookingTime');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = slots[0].dateStr;
+    }
+    onBookingDateChange();
+    if (timeSelect && slots[0].time) {
+      timeSelect.value = slots[0].time;
+    }
+  }
 }
 
-// 受付状態チェック（アドミン連動）
+// 受付状態チェック（アドミン連動・URLクエリ判定・安全初期化）
 function checkBookingStatus() {
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // URLパラメータで状態指定やリセットがある場合
+  if (urlParams.get('status') === 'open' || urlParams.get('reset') === '1' || urlParams.get('admin_sync') === 'open') {
+    localStorage.setItem('wakonyosai_booking_status', 'open');
+  } else if (urlParams.get('status') === 'closed') {
+    localStorage.setItem('wakonyosai_booking_status', 'closed');
+  }
+
   const status = localStorage.getItem('wakonyosai_booking_status');
   const notice = document.getElementById('bookingClosedNotice');
   const submitBtn = document.getElementById('submitBtn');
+
   if (status === 'closed') {
     if (notice) notice.style.display = 'block';
     if (submitBtn) {
@@ -1646,6 +1697,20 @@ function checkBookingStatus() {
       submitBtn.style.background = "";
     }
   }
+}
+
+// 🔄 管理者用・ワンクリックで「受付中（全枠オープン）」へ復旧
+function resetBookingToOpen() {
+  localStorage.setItem('wakonyosai_booking_status', 'open');
+  // 古いブロックキャッシュもクリアして初期化
+  const cfg = getScheduleConfig();
+  cfg.blockedSlots = {};
+  localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(cfg));
+  
+  checkBookingStatus();
+  initQuickSlots();
+  onBookingDateChange();
+  alert("予約受付を【全枠オープン（受付中）】にリセット・復旧いたしました。");
 }
 
 // ページ読み込み時の記録（初回PV）とステータス初期化

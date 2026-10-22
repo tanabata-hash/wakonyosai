@@ -800,7 +800,7 @@ body {
     <button class="btn-pill btn-excel" onclick="exportAllExcel()">
       <span>📥</span> 全データをExcel (CSV) 出力
     </button>
-    <a href="index.html" target="_blank" class="btn-pill">
+    <a href="index.html?status=open" id="viewSiteBtn" target="_blank" class="btn-pill">
       <span>↗</span> 公開サイトを見る
     </a>
     <button class="btn-pill" onclick="refreshData()">
@@ -1304,6 +1304,11 @@ function renderBookingStatus() {
     toggleBtn.className = "btn-toggle-status btn-close-action";
     toggleBtn.innerText = "⏸ 予約受付を一時停止（満席に設定）";
   }
+
+  const viewSiteBtn = document.getElementById('viewSiteBtn');
+  if (viewSiteBtn) {
+    viewSiteBtn.href = currentStatus === 'closed' ? 'index.html?status=closed' : 'index.html?status=open';
+  }
 }
 
 function toggleBookingStatus() {
@@ -1768,6 +1773,14 @@ function getJapaneseHoliday(dateStr) {
   return JAPANESE_HOLIDAYS[dateStr] || null;
 }
 
+// 📅 日付ヘルパー（JSTローカル時間で YYYY-MM-DD を生成）
+function formatDateStr(d) {
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  return `${y}-${m}-${day}`;
+}
+
 
 const ALL_DAYS = [
   { val: 1, label: "月曜日" },
@@ -1881,7 +1894,7 @@ function renderSlotsGrid() {
   for (let i = 1; i <= 14; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = formatDateStr(d);
     const dayOfWeek = d.getDay();
     const holidayName = getJapaneseHoliday(dateStr);
     const dayLabel = `${d.getMonth()+1}/${d.getDate()} (${dayNames[dayOfWeek]})`;
