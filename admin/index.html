@@ -1170,16 +1170,26 @@ function calcSha256(ascii) {
   return result;
 }
 
-// PIN検証（多層セキュリティ照合：コード内に平文数字は非保持）
+// PIN検証（ユーザーが変更・保存されたカスタムPINを最優先で照合）
 function verifyPin(inputPin) {
   if (!inputPin) return false;
+
+  // 1. ユーザー様が画面上で変更・設定された最新PINの照合
+  try {
+    const customPin = localStorage.getItem('wakonyosai_custom_pin');
+    if (customPin && inputPin === customPin) return true;
+  } catch(e){}
+
+  // 2. 初期設定PIN (1190) のハッシュ照合
   try {
     if (calcSha256(inputPin) === PIN_HASH) return true;
   } catch(e){}
+
+  // 3. 難読化フォールバック
   try {
-    // 難読化フォールバック（MTE5MA== は 1190 のBase64）
     if (btoa(inputPin) === "MTE5MA==") return true;
   } catch(e){}
+
   return false;
 }
 
