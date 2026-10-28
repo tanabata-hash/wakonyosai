@@ -818,6 +818,9 @@ body {
     <button class="btn-pill" onclick="refreshData()">
       <span>↻</span> 更新
     </button>
+    <button class="btn-pill" onclick="resetAllAnalyticsData()" style="border-color: rgba(248, 113, 113, 0.4); color: #FCA5A5;">
+      <span>🗑️</span> 数値をリセット
+    </button>
     <button class="btn-pill" onclick="logout()" style="color: var(--danger);">
       ログアウト
     </button>
@@ -1996,6 +1999,45 @@ function saveScheduleSettings() {
   alert("【保存完了】予約可能日時・時間枠の設定を保存しました。\n公開サイト側の予約フォームへ即時反映されます。");
 }
 
+const RESET_VERSION_KEY = "wakonyosai_stats_reset_version";
+const CURRENT_RESET_VERSION = "20261029_v1";
+
+// 初回読み込み時に過去の自己アクセス・テスト数値を自動で0にリセットする
+function ensureInitialStatsReset() {
+  try {
+    if (localStorage.getItem(RESET_VERSION_KEY) !== CURRENT_RESET_VERSION) {
+      localStorage.removeItem('wakonyosai_real_logs');
+      localStorage.removeItem('wakonyosai_booking_leads');
+      localStorage.setItem(RESET_VERSION_KEY, CURRENT_RESET_VERSION);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// 管理画面から手動でアクセス数・予約数値を0にリセットする
+function resetAllAnalyticsData() {
+  if (!confirm("現在表示されているアクセス数（PV・UU・PDF閲覧数・ログ）およびテスト予約データをすべて「0」にリセットしますか？")) {
+    return;
+  }
+  try {
+    localStorage.removeItem('wakonyosai_real_logs');
+    localStorage.removeItem('wakonyosai_booking_leads');
+    localStorage.setItem(RESET_VERSION_KEY, CURRENT_RESET_VERSION);
+  } catch (e) {
+    console.error(e);
+  }
+  allLogs = [];
+  renderLogs(allLogs);
+  allLeads = [];
+  renderBookings(allLeads);
+  initRankList();
+  if (sessionStorage.getItem(AUTH_KEY) === "true") {
+    initCharts();
+  }
+  alert("アクセス数および全数値を「0」にリセットしました。");
+}
+
 function refreshData() {
   allLogs = getAccessLogs();
   renderLogs(allLogs);
@@ -2012,6 +2054,7 @@ function refreshData() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  try { ensureInitialStatsReset(); } catch(e){ console.error(e); }
   try { checkAuth(); } catch(e){ console.error(e); }
   try { renderBookingStatus(); } catch(e){ console.error(e); }
   try { renderScheduleUI(); } catch(e){ console.error(e); }

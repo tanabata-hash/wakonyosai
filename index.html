@@ -1772,9 +1772,38 @@ function formatGoogleDate(dt) {
   return "" + dt.getFullYear() + pad(dt.getMonth() + 1) + pad(dt.getDate()) + "T" + pad(dt.getHours()) + pad(dt.getMinutes()) + "00";
 }
 
+const RESET_VERSION_KEY = "wakonyosai_stats_reset_version";
+const CURRENT_RESET_VERSION = "20261029_v1";
+
+// 初回読み込み時に過去の自己アクセス・テスト数値を自動で0にリセットする
+function ensureInitialStatsReset() {
+  try {
+    if (localStorage.getItem(RESET_VERSION_KEY) !== CURRENT_RESET_VERSION) {
+      localStorage.removeItem('wakonyosai_real_logs');
+      localStorage.removeItem('wakonyosai_booking_leads');
+      localStorage.setItem(RESET_VERSION_KEY, CURRENT_RESET_VERSION);
+    }
+  } catch (e) {}
+}
+
+// 管理者自身のブラウザからの閲覧アクセスかどうかを判定する
+function isAdminSelfAccess() {
+  try {
+    if (sessionStorage.getItem('wakonyosai_admin_auth') === 'true') return true;
+    if (localStorage.getItem('wakonyosai_custom_pin') === '1320') return true;
+    if (window.location.search.includes('status=')) return true;
+  } catch (e) {}
+  return false;
+}
+
 // 軽量アクセストラッカー（管理画面連携）
 function recordAnalyticsEvent(actionName, customLoc) {
   try {
+    ensureInitialStatsReset();
+    // 管理者自身の閲覧アクセスはカウントしない（自己アクセス除外）
+    if (isAdminSelfAccess() && !actionName.startsWith("予約完了") && !actionName.startsWith("事前質問送信")) {
+      return;
+    }
     const now = new Date();
     const timeStr = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
     
