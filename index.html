@@ -492,7 +492,7 @@ header {
 }
 
 .pricing-card {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   background: var(--bg-card);
   border: 2px solid var(--accent-gold);
@@ -501,6 +501,204 @@ header {
   text-align: center;
   position: relative;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.7);
+}
+
+/* Custom Menu & Use Cases Grid */
+.custom-plans-wrapper {
+  margin-top: 64px;
+}
+
+.custom-plans-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.custom-plans-badge {
+  display: inline-block;
+  background: rgba(212, 175, 55, 0.14);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-light);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 5px 16px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.custom-plans-title {
+  font-size: 1.65rem;
+  color: #FFFFFF;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.custom-plans-lead {
+  color: var(--text-muted);
+  font-size: 0.96rem;
+  max-width: 760px;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+.custom-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.custom-plan-card {
+  background: linear-gradient(160deg, rgba(26, 35, 51, 0.92) 0%, rgba(15, 21, 33, 0.96) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  border-radius: 14px;
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.custom-plan-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-gold);
+}
+
+.custom-case-tag {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+}
+
+.custom-plan-card h4 {
+  font-size: 1.22rem;
+  color: #FFFFFF;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.custom-price-box {
+  background: rgba(10, 14, 22, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.custom-price-main {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--accent-gold-light);
+  line-height: 1.2;
+}
+
+.custom-price-main span {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.custom-price-sub {
+  font-size: 0.78rem;
+  color: #CBD5E1;
+  margin-top: 4px;
+}
+
+.custom-usecase-box {
+  margin-bottom: 16px;
+}
+
+.custom-usecase-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-gold-light);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.custom-usecase-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px 0;
+}
+
+.custom-usecase-list li {
+  font-size: 0.86rem;
+  color: #E2E8F0;
+  line-height: 1.6;
+  padding-left: 18px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.custom-usecase-list li::before {
+  content: "▸";
+  position: absolute;
+  left: 2px;
+  color: var(--accent-gold);
+}
+
+.custom-deliverable-text {
+  font-size: 0.85rem;
+  color: #CBD5E1;
+  line-height: 1.65;
+  border-top: 1px dashed rgba(255, 255, 255, 0.14);
+  padding-top: 12px;
+  margin-bottom: 20px;
+}
+
+.btn-custom-plan {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: rgba(212, 175, 55, 0.16);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold-light);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-custom-plan:hover {
+  background: var(--accent-gold);
+  color: #000000;
+}
+
+.custom-combo-banner {
+  margin-top: 28px;
+  background: rgba(18, 24, 36, 0.75);
+  border: 1px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.custom-combo-text {
+  flex: 1;
+  min-width: 260px;
+}
+
+.custom-combo-text h5 {
+  font-size: 1.02rem;
+  color: var(--accent-gold-light);
+  margin-bottom: 6px;
+}
+
+.custom-combo-text p {
+  font-size: 0.88rem;
+  color: #CBD5E1;
+  line-height: 1.65;
 }
 
 .pricing-badge {
@@ -1204,6 +1402,7 @@ footer {
     font-size: 0.78rem;
     padding: 5px 16px;
     top: -14px;
+    white-space: nowrap;
   }
   .price {
     font-size: 2.2rem;
@@ -1219,6 +1418,33 @@ footer {
   .pricing-features li {
     font-size: 0.88rem;
     padding: 10px 0;
+  }
+  .custom-plans-wrapper {
+    margin-top: 44px;
+  }
+  .custom-plans-title {
+    font-size: 1.3rem;
+  }
+  .custom-plans-lead {
+    font-size: 0.88rem;
+  }
+  .custom-plans-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .custom-plan-card {
+    padding: 24px 18px;
+  }
+  .custom-plan-card h4 {
+    font-size: 1.12rem;
+  }
+  .custom-price-main {
+    font-size: 1.55rem;
+  }
+  .custom-combo-banner {
+    padding: 18px 16px;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   /* 予約・事前質問フォーム */
@@ -1512,25 +1738,132 @@ footer {
 <section class="section-pricing">
   <div class="container">
     <div class="section-title-wrap">
-      <span class="section-label">PLAN & PRICING</span>
-      <h2 class="section-title mincho">明瞭なスプリントパッケージ</h2>
+      <span class="section-label">PLAN & CUSTOM SOLUTIONS</span>
+      <h2 class="section-title mincho">
+        <span class="phrase">お店の状況・ご予算に</span>
+        <span class="phrase">合わせた導入プラン</span>
+      </h2>
+      <p style="color: var(--text-muted); margin-top: 12px; max-width: 760px; margin-left: auto; margin-right: auto; font-size: 0.96rem;">
+        <span class="phrase">現場への完全定着を目指す「全部入りスプリント」から、</span>
+        <span class="phrase">メニュー英訳のみ・資料作成のみ・英語HP制作といった「必要な部分だけのスポット依頼」まで、</span>
+        <span class="phrase">客単価1万〜2万円規模のレストランから老舗料亭・旅館まで柔軟にご提案いたします。</span>
+      </p>
     </div>
 
     <div class="pricing-card">
-      <div class="pricing-badge">今月限定 2社様モニター枠</div>
+      <div class="pricing-badge">今月限定 2社様モニター枠（全部入りパッケージ）</div>
       <h3 style="font-size: 1.5rem; color: #fff;">料理と文化を届ける「おもてなし英語」導入スプリント</h3>
-      <div class="price">350,000<span> 円（税別）</span></div>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">通常定価: 400,000円 / 最短2週間で完了</p>
+      <div class="price">180,000<span> 円（税別）</span></div>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">通常定価: 240,000円 / 最短2週間で完了（メニュー英訳・専用資料・現場研修すべて込み）</p>
 
       <ul class="pricing-features">
-        <li><span class="phrase">貴店専用メニュー英訳＆解説集（全献立網羅）</span></li>
-        <li><span class="phrase">『Hall Pocket Guide』専用マニュアル制作・データ納品</span></li>
-        <li><span class="phrase">ホール・キッチン合同 実践ロールプレイング研修（2回）</span></li>
+        <li><span class="phrase">貴店専用メニュー英訳＆料理ストーリー解説集（全献立網羅）</span></li>
+        <li><span class="phrase">『Hall Pocket Guide』＆指差し確認シート 専用制作・データ納品</span></li>
+        <li><span class="phrase">ホール・キッチン合同 実践ロールプレイング研修（60分×2回）</span></li>
         <li><span class="phrase">店長・リーダーが新人を自走指導できる「台本付きレッスン」納品</span></li>
-        <li><span class="phrase">お支払い：契約時50%（着手金） / 完了時50%の安心2分割</span></li>
+        <li><span class="phrase">お支払い：契約時50%（着手金 90,000円） / 完了時50%の安心2分割</span></li>
       </ul>
 
       <a href="#booking" onclick="selectPlan('sprint')" class="btn-primary" style="display: block; width: 100%;">このプラン（導入スプリント）を予約・相談する</a>
+    </div>
+
+    <!-- 状況・ニーズに合わせたカスタムメニュー＆活用例 -->
+    <div class="custom-plans-wrapper">
+      <div class="custom-plans-header">
+        <span class="custom-plans-badge">CUSTOM MENU & USE CASES</span>
+        <h3 class="custom-plans-title mincho">
+          <span class="phrase">レッスンなしでもご依頼可能 ─</span>
+          <span class="phrase">状況・ニーズ別のカスタム活用例</span>
+        </h3>
+        <p class="custom-plans-lead">
+          「まずは来月の英語お品書きだけ急ぎで揃えたい」「営業中の研修時間は取れないので現場マニュアルだけ欲しい」「海外客向けの英語ホームページを作りたい」など、お店ごとの課題に合わせて1メニューから無駄なくご活用いただけます。
+        </p>
+      </div>
+
+      <div class="custom-plans-grid">
+        <!-- CASE 01: メニュー英訳・解説のみ -->
+        <div class="custom-plan-card">
+          <div>
+            <span class="custom-case-tag">CASE 01 ─ MENU TRANSLATION</span>
+            <h4 class="mincho">季節のお品書き英訳 ＆<br>料理ストーリー解説作成</h4>
+            <div class="custom-price-box">
+              <div class="custom-price-main">25,000<span> 円〜（税別）</span></div>
+              <div class="custom-price-sub">※月替わり献立の継続更新：月額 10,000円〜</div>
+            </div>
+            <div class="custom-usecase-box">
+              <span class="custom-usecase-label">▼ こんな状況・ニーズに（活用例）</span>
+              <ul class="custom-usecase-list">
+                <li>来月から始まる新コースの英語メニューだけ急ぎで揃えたい</li>
+                <li>直訳ではなく、出汁や火入れのこだわりが伝わる英語説明文が欲しい</li>
+                <li>毎月の旬の献立変更に合わせて英語お品書きを更新してほしい</li>
+              </ul>
+            </div>
+            <p class="custom-deliverable-text">
+              <strong>【納品内容】</strong>お客様提示用の格調高い英語お品書きデータ ＋ スタッフがそのまま読み上げられる英語フレーズ集（カンペ）をセットで納品。外国人客1組（2名）のご来店で回収できる最も手軽なプランです。
+            </p>
+          </div>
+          <a href="#booking" onclick="selectPlan('custom_menu')" class="btn-custom-plan">メニュー英訳のみを相談する</a>
+        </div>
+
+        <!-- CASE 02: 資料・マニュアル作成のみ -->
+        <div class="custom-plan-card">
+          <div>
+            <span class="custom-case-tag">CASE 02 ─ SOP & POCKET GUIDE</span>
+            <h4 class="mincho">現場用『Hall Pocket Guide』<br>＆ 指差し確認シート制作</h4>
+            <div class="custom-price-box">
+              <div class="custom-price-main">50,000<span> 円〜（税別）</span></div>
+              <div class="custom-price-sub">※CASE 01（お品書き英訳）とのセット：70,000円〜</div>
+            </div>
+            <div class="custom-usecase-box">
+              <span class="custom-usecase-label">▼ こんな状況・ニーズに（活用例）</span>
+              <ul class="custom-usecase-list">
+                <li>研修の時間は取りづらいため、現場に置いて今日から使える資料だけ欲しい</li>
+                <li>出汁（魚介）・みりん（アルコール）・小麦等のアレルギー事故を防ぎたい</li>
+                <li>アルバイトや新人が入っても迷わない英語接客の手順書を作りたい</li>
+              </ul>
+            </div>
+            <p class="custom-deliverable-text">
+              <strong>【納品内容】</strong>入店〜お会計の必須フレーズと、指差しで確認できる「アレルギー・宗教食対応表」を貴店仕様のA4見開きデータで納品。（※後日、差額＋11万円で実践研修2回を追加することも可能です）
+            </p>
+          </div>
+          <a href="#booking" onclick="selectPlan('custom_doc')" class="btn-custom-plan">資料・マニュアル作成を相談する</a>
+        </div>
+
+        <!-- CASE 03: 英語ホームページ・LP制作 -->
+        <div class="custom-plan-card">
+          <div>
+            <span class="custom-case-tag">CASE 03 ─ INBOUND WEB & LP</span>
+            <h4 class="mincho">海外ゲスト向け 英語HP・<br>ブランドLP制作（予約連動）</h4>
+            <div class="custom-price-box">
+              <div class="custom-price-main">80,000<span> 円〜（税別）</span></div>
+              <div class="custom-price-sub">※スマホ完結1ページLP〜 / 既存HPの英語化も対応</div>
+            </div>
+            <div class="custom-usecase-box">
+              <span class="custom-usecase-label">▼ こんな状況・ニーズに（活用例）</span>
+              <ul class="custom-usecase-list">
+                <li>グルメサイトだけでは、料理人の想いや店の空間・魅力が海外客に伝わらない</li>
+                <li>英語のお品書き・アクセス・キャンセル規定をまとめた公式ページを持ちたい</li>
+                <li>GoogleマップやSNSから海外客が直接予約できる英語導線を整えたい</li>
+              </ul>
+            </div>
+            <p class="custom-deliverable-text">
+              <strong>【納品内容】</strong>一般のWeb制作会社が苦手とする「日本料理の繊細な英語ライティング」から、スマホで見やすい高級感ある英語ページ構築、海外向け予約サイト・マップ導線まで一気通貫で制作します。
+            </p>
+          </div>
+          <a href="#booking" onclick="selectPlan('custom_web')" class="btn-custom-plan">英語HP・LP制作を相談する</a>
+        </div>
+      </div>
+
+      <!-- 柔軟な組み合わせ・オーダーメイド提案バナー -->
+      <div class="custom-combo-banner">
+        <div class="custom-combo-text">
+          <h5 class="mincho">💡 複数の組み合わせや、ご予算に応じたオーダーメイド提案も可能です</h5>
+          <p>
+            「メニュー英訳 ＋ 英語ホームページ制作」「まずは資料作成のみでスタートし、繁忙期前に1回だけZoom研修を実施」など、お店の規模（個人店〜複数店舗）や客単価・ご予算に合わせて最適な組み合わせをご提案いたします。
+          </p>
+        </div>
+        <a href="#booking" onclick="selectPlan('custom_other')" class="btn-secondary" style="white-space: nowrap; padding: 12px 22px; font-size: 0.9rem;">オーダーメイド相談を予約</a>
+      </div>
     </div>
   </div>
 </section>
@@ -1581,14 +1914,18 @@ footer {
           <!-- 予約種別の選択 -->
           <div class="form-group" style="margin-bottom: 24px; background: rgba(18, 24, 36, 0.6); padding: 16px 20px; border-radius: 8px; border: 1px solid var(--border-gold);">
             <label class="form-label" style="color: var(--accent-gold-light); font-weight: 700;">ご希望の予約種別 <span>*</span></label>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
               <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
                 <input type="radio" name="plan_type" id="planFree" value="15分無料オンライン相談" checked style="accent-color: var(--accent-gold);">
                 <span>15分無料オンライン相談（課題相談・導入イメージ共有）</span>
               </label>
               <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
-                <input type="radio" name="plan_type" id="planSprint" value="おもてなし英語導入スプリント申込" style="accent-color: var(--accent-gold);">
-                <span>おもてなし英語導入スプリント申込（最短2週間・40万円プラン）</span>
+                <input type="radio" name="plan_type" id="planSprint" value="おもてなし英語導入スプリント申込（18万円プラン）" style="accent-color: var(--accent-gold);">
+                <span>おもてなし英語導入スプリント申込（最短2週間・18万円全部入りプラン）</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #FFF; font-size: 0.95rem;">
+                <input type="radio" name="plan_type" id="planCustom" value="カスタム・スポットプラン相談（メニュー英訳／資料作成／英語HP制作）" style="accent-color: var(--accent-gold);">
+                <span>カスタム・スポットプランのご相談（メニュー英訳のみ／資料作成のみ／英語HP制作など）</span>
               </label>
             </div>
           </div>
@@ -1874,9 +2211,26 @@ function recordAnalyticsEvent(actionName, customLoc) {
 
 // 予約種別切り替え
 function selectPlan(plan) {
+  switchFormTab('booking');
+  const msgField = document.querySelector('#bookingForm textarea[name="message"]');
   if (plan === 'sprint') {
     const radio = document.getElementById('planSprint');
     if (radio) radio.checked = true;
+  } else if (plan && plan.startsWith('custom')) {
+    const radio = document.getElementById('planCustom');
+    if (radio) radio.checked = true;
+    if (msgField) {
+      const presets = {
+        'custom_menu': '【ご相談内容：CASE 01 季節のお品書き英訳＆料理ストーリー解説作成（25,000円〜）】\n',
+        'custom_doc': '【ご相談内容：CASE 02 現場用『Hall Pocket Guide』＆指差し確認シート制作（50,000円〜）】\n',
+        'custom_web': '【ご相談内容：CASE 03 海外ゲスト向け英語HP・ブランドLP制作（80,000円〜）】\n',
+        'custom_other': '【ご相談内容：お店の状況に合わせたカスタム・組み合わせプランのご相談】\n'
+      };
+      const prefix = presets[plan] || '';
+      if (prefix && (!msgField.value || msgField.value.startsWith('【ご相談内容：'))) {
+        msgField.value = prefix;
+      }
+    }
   } else {
     const radio = document.getElementById('planFree');
     if (radio) radio.checked = true;

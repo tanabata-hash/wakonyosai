@@ -937,12 +937,12 @@ body {
 
     <div class="kpi-card kpi-card-featured">
       <div class="kpi-label">
-        <span>導入スプリント 予約数</span>
+        <span>導入・カスタム申込数</span>
         <span>🔥</span>
       </div>
       <div class="kpi-value outfit" style="color: var(--accent-gold);" id="kpiSprintCount">0</div>
       <div class="kpi-trend">
-        <span class="trend-up" style="color: var(--accent-gold-light);">40万円プラン申込</span>
+        <span class="trend-up" style="color: var(--accent-gold-light);">18万円プラン / カスタム</span>
         <span class="trend-sub" id="kpiSprintSub">想定売上 0円</span>
       </div>
     </div>
@@ -1407,12 +1407,12 @@ function renderBookings(leads) {
   }).join('');
 
   // 実データからのカウント集計
-  const sprintCount = leads.filter(l => l.planType && l.planType.includes("スプリント")).length;
-  const freeCount = leads.filter(l => !l.planType || !l.planType.includes("スプリント")).length;
+  const sprintCount = leads.filter(l => l.planType && (l.planType.includes("スプリント") || l.planType.includes("カスタム"))).length;
+  const freeCount = leads.filter(l => !l.planType || (!l.planType.includes("スプリント") && !l.planType.includes("カスタム"))).length;
   document.getElementById('kpiSprintCount').innerText = sprintCount;
   document.getElementById('kpiFreeCount').innerText = freeCount;
   const subSprint = document.getElementById('kpiSprintSub');
-  if (subSprint) subSprint.innerText = `想定売上 ${(sprintCount * 40).toLocaleString()}万円`;
+  if (subSprint) subSprint.innerText = `想定売上 ${(sprintCount * 18).toLocaleString()}万円`;
   const subFree = document.getElementById('kpiFreeSub');
   if (subFree) subFree.innerText = `相談リード ${freeCount}件`;
 }
