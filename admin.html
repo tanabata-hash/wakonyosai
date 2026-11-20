@@ -818,6 +818,9 @@ body {
     <button class="btn-pill" onclick="refreshData()">
       <span>↻</span> 更新
     </button>
+    <button class="btn-pill" id="optoutStatusBtn" onclick="toggleAdminOptout()" style="border-color: rgba(52, 211, 153, 0.4); color: #6EE7B7;" title="この端末からのサイト閲覧をアクセス集計から除外します">
+      <span>🛡️</span> 自アクセス除外: 有効
+    </button>
     <button class="btn-pill" onclick="resetAllAnalyticsData()" style="border-color: rgba(248, 113, 113, 0.4); color: #FCA5A5;">
       <span>🗑️</span> 数値をリセット
     </button>
@@ -1260,6 +1263,8 @@ function handleLogin(e) {
     if (errorBox) errorBox.style.display = 'none';
     try {
       sessionStorage.setItem(AUTH_KEY, "true");
+      localStorage.setItem('wakonyosai_admin_auth', "true");
+      localStorage.setItem('wakonyosai_ignore_admin', "true");
     } catch (err) {
       console.warn("Failed to set sessionStorage:", err);
     }
@@ -2000,7 +2005,7 @@ function saveScheduleSettings() {
 }
 
 const RESET_VERSION_KEY = "wakonyosai_stats_reset_version";
-const CURRENT_RESET_VERSION = "20261029_v1";
+const CURRENT_RESET_VERSION = "20261120_exclude_admin_v3";
 
 // 初回読み込み時に過去の自己アクセス・テスト数値を自動で0にリセットする
 function ensureInitialStatsReset() {
@@ -2016,6 +2021,44 @@ function ensureInitialStatsReset() {
 }
 
 // 管理画面から手動でアクセス数・予約数値を0にリセットする
+
+// この端末からのアクセス除外切り替え
+function toggleAdminOptout() {
+  const isIgnored = localStorage.getItem('wakonyosai_ignore_admin') === 'true';
+  if (isIgnored) {
+    if (confirm("このブラウザからのアクセス除外を解除しますか？\n（解除するとあなたのアクセスもPV・UUとしてカウントされます）")) {
+      localStorage.removeItem('wakonyosai_ignore_admin');
+      updateOptoutBtn();
+      alert("アクセス除外を解除しました。");
+    }
+  } else {
+    localStorage.setItem('wakonyosai_ignore_admin', 'true');
+    updateOptoutBtn();
+    alert("このブラウザからのアクセスを除外しました。\n（あなたのアクセスは一切カウントされません）");
+  }
+}
+
+function updateOptoutBtn() {
+  const btn = document.getElementById('optoutStatusBtn');
+  if (!btn) return;
+  const isIgnored = localStorage.getItem('wakonyosai_ignore_admin') === 'true';
+  if (isIgnored) {
+    btn.innerHTML = '<span>🛡️</span> 自アクセス除外: 有効 ✅';
+    btn.style.color = '#6EE7B7';
+    btn.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+  } else {
+    btn.innerHTML = '<span>⚠️</span> 自アクセス除外: 無効 ❌';
+    btn.style.color = '#FCA5A5';
+    btn.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+  }
+}
+
+// 起動時にボタン状態初期化
+window.addEventListener('DOMContentLoaded', () => {
+  localStorage.setItem('wakonyosai_ignore_admin', 'true');
+  updateOptoutBtn();
+});
+
 function resetAllAnalyticsData() {
   if (!confirm("現在表示されているアクセス数（PV・UU・PDF閲覧数・ログ）およびテスト予約データをすべて「0」にリセットしますか？")) {
     return;
