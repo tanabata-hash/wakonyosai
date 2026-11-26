@@ -2320,6 +2320,13 @@ function recordAnalyticsEvent(actionName, customLoc) {
     else if (hour >= 12 && hour < 15) timeBand = "昼 (12:00〜15:00)";
     else if (hour >= 15 && hour < 18) timeBand = "夕方・仕込み (15:00〜18:00)";
 
+    // クラウド側リアルタイムPVカウンターへヒット送信（管理者除外時を除く）
+    if (!isAdminSelfAccess() && actionName === "トップページ閲覧") {
+      try {
+        fetch("https://hitscounter.dev/api/hit?url=https%3A%2F%2Fwakonyosai.com&output=json").catch(()=>{});
+      } catch(e) {}
+    }
+
     // 流入元
     let ref = document.referrer;
     if (!ref) ref = "Direct / 名刺QR";

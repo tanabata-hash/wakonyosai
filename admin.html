@@ -926,6 +926,20 @@ body {
   </section>
 
   <!-- KPIサマリーカード（プラン分別） -->
+    <!-- 🟢 リアルタイム閲覧モニター（ライブ監視バナー） -->
+  <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 10px; padding: 12px 20px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981;"></span>
+      <span style="color: #10b981; font-weight: 700; font-size: 0.9rem;">リアルタイム閲覧監視システム：常時稼働中</span>
+      <span style="color: #94a3b8; font-size: 0.8rem;">（世界中からの外部アクセスをクラウドで即時捕捉）</span>
+    </div>
+    <div style="display: flex; gap: 24px; font-size: 0.88rem; color: #cbd5e1; align-items: center;">
+      <div>本日のリアルタイムPV: <strong id="liveCloudToday" style="color: #38bdf8; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">--</strong> 回</div>
+      <div>累計アクセス(PV): <strong id="liveCloudTotal" style="color: #fde047; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">--</strong> 回</div>
+      <button onclick="syncRealtimeLiveStats()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">↺ 最新化</button>
+    </div>
+  </div>
+
   <div class="kpi-grid">
     <div class="kpi-card kpi-card-featured">
       <div class="kpi-label">
