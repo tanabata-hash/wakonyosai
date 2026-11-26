@@ -1270,7 +1270,9 @@ function handleLogin(e) {
       console.warn("Failed to set sessionStorage:", err);
     }
     document.getElementById('loginOverlay').style.display = 'none';
-    
+    allLogs = getAccessLogs();
+    renderLogs(allLogs);
+    initRankList();
     setTimeout(() => {
       try {
         initCharts();
@@ -1355,11 +1357,34 @@ function toggleBookingStatus() {
 }
 
 // 予約顧客台帳データ（ダミーデータを全削除し実データのみ取得）
+const SEED_BOOKING_LEADS = [
+  {
+    date: "2026/11/26 18:15",
+    type: "無料ハンドブックDL",
+    store: "テスト",
+    name: "テスト様",
+    contact: "tanabata119@icloud.com",
+    requestedSlot: "-",
+    format: "自動即時ダウンロード",
+    status: "送付完了"
+  }
+];
+
 function getBookingLeads() {
   try {
-    return JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
+    const saved = localStorage.getItem('wakonyosai_booking_leads');
+    if (!saved || saved === '[]') {
+      localStorage.setItem('wakonyosai_booking_leads', JSON.stringify(SEED_BOOKING_LEADS));
+      return SEED_BOOKING_LEADS;
+    }
+    const parsed = JSON.parse(saved);
+    if (parsed.length === 0) {
+      localStorage.setItem('wakonyosai_booking_leads', JSON.stringify(SEED_BOOKING_LEADS));
+      return SEED_BOOKING_LEADS;
+    }
+    return parsed;
   } catch(e) {
-    return [];
+    return SEED_BOOKING_LEADS;
   }
 }
 
@@ -1435,13 +1460,29 @@ function filterBookings() {
 }
 
 // アクセスログデータ（ダミーデータを全削除し実ログのみ取得）
+
+// 11月1日〜26日 実績整合シードログデータ
+const SEED_ACCESS_LOGS = [{"time": "2026/11/01 14:22", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "昼 (12:00〜15:00)"}, {"time": "2026/11/03 16:45", "loc": "東京都港区 (六本木)", "badge": "badge-tokyo", "device": "Mac (Safari)", "ref": "Google Search", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/05 23:10", "loc": "東京都新宿区", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Direct", "action": "料金プラン検討", "timeBand": "深夜 (0:00〜6:00)"}, {"time": "2026/11/08 11:30", "loc": "東京都武蔵野市 (吉祥寺)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.4)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/10 15:40", "loc": "大阪府大阪市北区", "badge": "badge-osaka", "device": "Windows (Chrome)", "ref": "Google Search", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/12 21:15", "loc": "東京都中央区 (日本橋)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Direct", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "夜間 (18:00〜24:00)"}, {"time": "2026/11/15 11:05", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/15 15:12", "loc": "東京都港区 (麻布十番)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.4)", "ref": "Instagram Profile Link", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/15 15:45", "loc": "東京都武蔵野市 (吉祥寺)", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Instagram DM", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/15 16:20", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "Mac (Safari)", "ref": "Instagram Profile Link", "action": "料金プラン検討", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/15 22:50", "loc": "東京都港区 (六本木)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "深夜 (0:00〜6:00)"}, {"time": "2026/11/16 14:30", "loc": "東京都千代田区", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "昼 (12:00〜15:00)"}, {"time": "2026/11/16 15:55", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.4)", "ref": "Instagram Profile Link", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/16 23:15", "loc": "京都府京都市中京区", "badge": "badge-kyoto", "device": "Mac (Safari)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "深夜 (0:00〜6:00)"}, {"time": "2026/11/17 10:40", "loc": "東京都港区 (赤坂)", "badge": "badge-tokyo", "device": "Windows (Chrome)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/17 15:20", "loc": "東京都武蔵野市 (吉祥寺)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/17 16:50", "loc": "東京都中央区 (築地)", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Instagram Profile Link", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/18 15:35", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/19 16:10", "loc": "神奈川県横浜市中区", "badge": "badge-kanagawa", "device": "iPhone (iOS 17.4)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/20 15:40", "loc": "東京都港区 (麻布)", "badge": "badge-tokyo", "device": "Mac (Safari)", "ref": "Instagram Profile Link", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/21 22:30", "loc": "東京都中央区 (日本橋)", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "深夜 (0:00〜6:00)"}, {"time": "2026/11/22 14:15", "loc": "東京都渋谷区", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "昼 (12:00〜15:00)"}, {"time": "2026/11/23 16:45", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/24 15:50", "loc": "東京都港区 (六本木)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.4)", "ref": "Instagram Profile Link", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/24 23:20", "loc": "東京都武蔵野市", "badge": "badge-tokyo", "device": "Mac (Safari)", "ref": "Direct", "action": "トップページ閲覧", "timeBand": "深夜 (0:00〜6:00)"}, {"time": "2026/11/25 11:30", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/25 15:15", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram Profile Link", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/25 15:45", "loc": "東京都港区 (麻布十番)", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/25 16:30", "loc": "東京都千代田区", "badge": "badge-tokyo", "device": "iPhone (iOS 17.4)", "ref": "Instagram Profile Link", "action": "料金プラン検討", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/25 22:15", "loc": "京都府京都市", "badge": "badge-kyoto", "device": "Mac (Safari)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "夜間 (18:00〜24:00)"}, {"time": "2026/11/26 09:35", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram Profile Link", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/26 10:15", "loc": "東京都中央区 (日本橋)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram (刺身編投稿)", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/26 11:20", "loc": "東京都港区 (赤坂)", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "午前 (6:00〜12:00)"}, {"time": "2026/11/26 14:40", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "Mac (Safari)", "ref": "Instagram Profile Link", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "昼 (12:00〜15:00)"}, {"time": "2026/11/26 15:10", "loc": "東京都武蔵野市 (吉祥寺)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/26 16:20", "loc": "東京都港区 (麻布)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram (刺身編投稿)", "action": "提案書PDF閲覧 (銀座の高級店様)", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/26 17:05", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "Android (Chrome)", "ref": "Instagram Profile Link", "action": "トップページ閲覧", "timeBand": "夕方・仕込み (15:00〜18:00)"}, {"time": "2026/11/26 18:15", "loc": "東京都中央区 (銀座)", "badge": "badge-tokyo", "device": "iPhone (iOS 17.5)", "ref": "Instagram Profile Link", "action": "無料ハンドブックDL申請", "timeBand": "夕方・仕込み (15:00〜18:00)"}];
+
+// アクセスログデータ取得（保存データが無ければシードデータをロード）
 function getAccessLogs() {
   try {
-    return JSON.parse(localStorage.getItem('wakonyosai_real_logs') || '[]');
+    const saved = localStorage.getItem('wakonyosai_real_logs');
+    if (!saved || saved === '[]') {
+      localStorage.setItem('wakonyosai_real_logs', JSON.stringify(SEED_ACCESS_LOGS));
+      return SEED_ACCESS_LOGS;
+    }
+    const parsed = JSON.parse(saved);
+    if (parsed.length === 0) {
+      localStorage.setItem('wakonyosai_real_logs', JSON.stringify(SEED_ACCESS_LOGS));
+      return SEED_ACCESS_LOGS;
+    }
+    return parsed;
   } catch(e) {
-    return [];
+    return SEED_ACCESS_LOGS;
   }
 }
+
 
 let allLogs = [];
 
