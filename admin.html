@@ -2194,8 +2194,8 @@ async function syncRealtimeLiveStats() {
   }
 }
 
-// 20秒ごとにバックグラウンドで最新実測PVを自動更新
-setInterval(syncRealtimeLiveStats, 20000);
+// 自己アクセス増殖防止のため定期自動フェッチは停止（手動の「最新化」ボタンのみ有効化）
+// setInterval(syncRealtimeLiveStats, 20000);
 
 </script>
 </body>
