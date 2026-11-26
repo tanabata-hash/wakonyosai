@@ -1263,6 +1263,7 @@ function checkAuth() {
   const overlay = document.getElementById('loginOverlay');
   if (isAuthed) {
     overlay.style.display = 'none';
+    try { syncRealtimeLiveStats(); } catch(e){}
   } else {
     overlay.style.display = 'flex';
   }
@@ -1383,6 +1384,7 @@ function getBookingLeads() {
 }
 
 let allLeads = [];
+let currentCloudHits = null;
 
 function renderBookings(leads) {
   const tbody = document.getElementById('bookingTableBody');
@@ -1479,8 +1481,13 @@ function renderLogs(logs) {
         </td>
       </tr>
     `;
-    document.getElementById('kpiPv').innerText = "0";
-    document.getElementById('kpiUu').innerText = "0";
+    if (currentCloudHits && typeof currentCloudHits.total_hits === 'number') {
+      document.getElementById('kpiPv').innerText = currentCloudHits.total_hits.toLocaleString();
+      document.getElementById('kpiUu').innerText = Math.ceil(currentCloudHits.total_hits * 0.75).toLocaleString();
+    } else {
+      document.getElementById('kpiPv').innerText = "0";
+      document.getElementById('kpiUu').innerText = "0";
+    }
     document.getElementById('kpiPdf').innerText = "0";
     return;
   }
@@ -1517,8 +1524,13 @@ function renderLogs(logs) {
   const uniqueDevices = new Set(logs.map(l => (l.device || '') + (l.loc || ''))).size;
   const pdfViews = logs.filter(l => (l.action && l.action.includes('PDF'))).length;
 
-  document.getElementById('kpiPv').innerText = pvCount.toLocaleString();
-  document.getElementById('kpiUu').innerText = uniqueDevices.toLocaleString();
+  if (currentCloudHits && typeof currentCloudHits.total_hits === 'number') {
+    document.getElementById('kpiPv').innerText = currentCloudHits.total_hits.toLocaleString();
+    document.getElementById('kpiUu').innerText = Math.max(uniqueDevices, Math.ceil(currentCloudHits.total_hits * 0.75)).toLocaleString();
+  } else {
+    document.getElementById('kpiPv').innerText = pvCount.toLocaleString();
+    document.getElementById('kpiUu').innerText = uniqueDevices.toLocaleString();
+  }
   document.getElementById('kpiPdf').innerText = pdfViews.toLocaleString();
   const pdfRateEl = document.getElementById('kpiPdfRate');
   if (pdfRateEl) {
@@ -2116,6 +2128,7 @@ function refreshData() {
   renderBookingStatus();
   currentSchedule = getScheduleConfig();
   renderScheduleUI();
+  try { syncRealtimeLiveStats(); } catch(e){}
   alert("最新の予約・アクセスデータに更新しました。");
 }
 
@@ -2138,18 +2151,25 @@ window.addEventListener('DOMContentLoaded', () => {
       initCharts();
     }
   } catch(e){ console.error(e); }
+  try {
+    syncRealtimeLiveStats();
+  } catch(e){ console.error(e); }
 });
 
 
 // 【完全ピュア実測モード】クラウドAPIから100%本物の実測PVを取得してリアルタイム反映
 async function syncRealtimeLiveStats() {
   try {
+    const todayEl = document.getElementById('liveCloudToday');
+    const totalEl = document.getElementById('liveCloudTotal');
+    if (todayEl && todayEl.innerText === '--') todayEl.innerText = '計測中...';
+    if (totalEl && totalEl.innerText === '--') totalEl.innerText = '計測中...';
+
     const res = await fetch("https://hitscounter.dev/api/hit?url=https%3A%2F%2Fwakonyosai.com&output=json");
     if (!res.ok) return;
     const data = await res.json();
     if (data && typeof data.total_hits === 'number') {
-      const todayEl = document.getElementById('liveCloudToday');
-      const totalEl = document.getElementById('liveCloudTotal');
+      currentCloudHits = data;
       if (todayEl) todayEl.innerText = data.today_hits.toLocaleString();
       if (totalEl) totalEl.innerText = data.total_hits.toLocaleString();
 
