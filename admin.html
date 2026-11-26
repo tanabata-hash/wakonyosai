@@ -1373,35 +1373,12 @@ function toggleBookingStatus() {
   }
 }
 
-// 予約顧客台帳データ（ダミーデータを全削除し実データのみ取得）
-const SEED_BOOKING_LEADS = [
-  {
-    date: "2026/11/26 18:15",
-    type: "無料ハンドブックDL",
-    store: "テスト",
-    name: "テスト様",
-    contact: "tanabata119@icloud.com",
-    requestedSlot: "-",
-    format: "自動即時ダウンロード",
-    status: "送付完了"
-  }
-];
-
+// 予約顧客台帳データ（純粋な実データのみ取得・テストデータ全削除）
 function getBookingLeads() {
   try {
-    const saved = localStorage.getItem('wakonyosai_booking_leads');
-    if (!saved || saved === '[]') {
-      localStorage.setItem('wakonyosai_booking_leads', JSON.stringify(SEED_BOOKING_LEADS));
-      return SEED_BOOKING_LEADS;
-    }
-    const parsed = JSON.parse(saved);
-    if (parsed.length === 0) {
-      localStorage.setItem('wakonyosai_booking_leads', JSON.stringify(SEED_BOOKING_LEADS));
-      return SEED_BOOKING_LEADS;
-    }
-    return parsed;
+    return JSON.parse(localStorage.getItem('wakonyosai_booking_leads') || '[]');
   } catch(e) {
-    return SEED_BOOKING_LEADS;
+    return [];
   }
 }
 
@@ -2051,13 +2028,14 @@ function saveScheduleSettings() {
 }
 
 const RESET_VERSION_KEY = "wakonyosai_stats_reset_version";
-const CURRENT_RESET_VERSION = "20261126_pure_live_v2";
+const CURRENT_RESET_VERSION = "20261126_pure_live_v3_clean_leads";
 
-// 【完全ピュア実測モード】過去のシードデータを全消去し、100%本物の実測値のみをカウントする
+// 【完全ピュア実測モード】テストリード及び過去シードデータを完全消去しクリーンな状態に初期化
 function ensureInitialStatsReset() {
   try {
     if (localStorage.getItem(RESET_VERSION_KEY) !== CURRENT_RESET_VERSION) {
       localStorage.removeItem('wakonyosai_real_logs');
+      localStorage.removeItem('wakonyosai_booking_leads');
       localStorage.setItem(RESET_VERSION_KEY, CURRENT_RESET_VERSION);
     }
   } catch (e) {
