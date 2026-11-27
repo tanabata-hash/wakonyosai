@@ -1382,12 +1382,12 @@ function exportBookingsExcel() {
   const headers = ["受付日時", "予約種別(プラン)", "店舗名/宿名", "ご担当者様", "連絡先", "ご希望相談日時", "対応ステータス"];
   const rows = allLeads.map(l => [
     `"${l.date || ''}"`,
-    `"${l.type || ''}"`,
-    `"${l.store || ''}"`,
+    `"${l.planType || l.type || ''}"`,
+    `"${l.storeName || l.store || ''}"`,
     `"${l.name || ''}"`,
-    `"${l.contact || ''}"`,
-    `"${l.datetime || ''}"`,
-    `"${l.status || ''}"`
+    `"${(l.email ? '✉ ' + l.email : '') + (l.phone ? ' ☎ ' + l.phone : '') || l.contact || ''}"`,
+    `"${l.dateTime || l.datetime || ''}"`,
+    `"${l.status || '新規受付'}"`
   ]);
   const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   downloadCSV(csv, `和魂洋才_予約台帳_${new Date().toISOString().slice(0,10)}.csv`);
